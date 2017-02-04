@@ -1,0 +1,1 @@
+from piggy_store.app import app
