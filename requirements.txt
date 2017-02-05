@@ -1,2 +1,3 @@
 Flask==0.12
 uWSGI==2.0.14
+Flask-JSON==0.3.0
