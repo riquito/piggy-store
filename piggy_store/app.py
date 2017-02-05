@@ -1,5 +1,5 @@
-from flask import Flask, abort, make_response
-from flask_json import FlaskJSON, JsonError, json_response, as_json
+from flask import Flask, abort, request
+from flask_json import FlaskJSON, as_json
 
 app = Flask(__name__)
 FlaskJSON(app)
