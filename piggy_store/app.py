@@ -1,6 +1,7 @@
 from flask import Flask, abort, request
 from flask_json import FlaskJSON, as_json
 
+from piggy_store.storage.users import user_storage, User
 from piggy_store.validators import new_user_validator
 from piggy_store.exceptions import PiggyStoreError
 
@@ -14,8 +15,10 @@ def list_user_files(username):
 @app.route('/new-user', methods=['POST'])
 @as_json
 def new_user():
-    unsafe_payload = request.get_json()
+    unsafe_payload = request.get_json() or {}
     payload = new_user_validator(unsafe_payload)
+    user = User(payload['username'], payload['challenge'])
+    user_storage.add_user(user)
 
 @app.errorhandler(401)
 @as_json
