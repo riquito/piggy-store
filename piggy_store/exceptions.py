@@ -38,3 +38,7 @@ class FieldEmptyError(PiggyStoreError):
     def __init__(self, field_name):
         super().__init__(self.CODE, self.MESSAGE.format(field_name))
 
+class UserDoesNotExistError(PiggyStoreError):
+    CODE = 1005
+    MESSAGE = 'The user does not exist'
+
