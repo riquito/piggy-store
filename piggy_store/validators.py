@@ -24,6 +24,11 @@ def new_user_validator(payload):
         challenge = payload['challenge']
     )
 
+def auth_user_validator(payload):
+    _validate_has_attrs(payload, ['challenge'])
+    _validate_is_not_empty('challenge', payload['challenge'])
+    return dict(challenge = payload['challenge'])
+
 def _validate_has_attrs(data, attrs):
     for attr_name in attrs:
         if not data.get(attr_name):

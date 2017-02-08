@@ -1,7 +1,7 @@
 # This is a dumb memory storage, meant to be used
 # for simple tests and development
 
-from piggy_store.exceptions import UserExistsError
+from piggy_store.exceptions import UserExistsError, UserDoesNotExistError
 from piggy_store.storage.users.user_entity import User
 from piggy_store.storage.users.storage import Storage
 

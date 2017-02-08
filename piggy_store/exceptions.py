@@ -42,3 +42,6 @@ class UserDoesNotExistError(PiggyStoreError):
     CODE = 1005
     MESSAGE = 'The user does not exist'
 
+class ChallengeMismatchError(PiggyStoreError):
+    CODE = 1006
+    MESSAGE = 'The challenge does not match'
