@@ -3,7 +3,7 @@ from flask_json import FlaskJSON, as_json
 
 from piggy_store.storage.users import user_storage, User
 from piggy_store.validators import new_user_validator
-from piggy_store.exceptions import PiggyStoreError
+from piggy_store.exceptions import PiggyStoreError, UserDoesNotExistError
 
 app = Flask(__name__)
 FlaskJSON(app)
@@ -29,6 +29,16 @@ def user_unauthorized(e):
             'message': e.name
         }
     }, e.code
+
+@app.errorhandler(UserDoesNotExistError)
+@as_json
+def handle_user_does_not_exist_error(e):
+    return {
+        'error': {
+            'code': e.code,
+            'message': e.message
+        }
+    }, 404
 
 @app.errorhandler(PiggyStoreError)
 @as_json
