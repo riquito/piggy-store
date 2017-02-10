@@ -1,6 +1,9 @@
 from flask import Flask, abort, request
 from flask_json import FlaskJSON, as_json
 import werkzeug
+import logging
+
+logger = logging.getLogger('controller')
 
 from piggy_store.storage.users import user_storage, User
 from piggy_store.validators import new_user_validator, auth_user_validator
@@ -50,10 +53,12 @@ def on_flask_http_exception(e):
         return make_error_response(e.code, e.code, e.name)
     else:
         # happens when there was an error handling the exception
+        logger.exception(e)
         return make_error_response(500, 500, 'Internal Server Error')
 
 @app.errorhandler(Exception)
 def on_error(e):
+    logger.exception(e)
     return make_error_response(500, 500, 'Internal Server Error')
 
 @as_json
