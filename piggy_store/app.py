@@ -25,6 +25,9 @@ def new_user():
     payload = new_user_validator(unsafe_payload)
     user = User(payload['username'], payload['challenge'])
     user_storage.add_user(user)
+    return {
+        'token': generate_auth_token(user)
+    }
 
 @app.route('/user/<username>/auth', methods=['POST'])
 @as_json
