@@ -28,12 +28,8 @@ def new_user():
 def auth_user(username):
     unsafe_payload = request.get_json() or {}
     payload = auth_user_validator(unsafe_payload)
-
     user = user_storage.find_user_by_username(username)
-    try:
-        assert_user_challenge_match(user, payload['challenge'])
-    except ChallengeMismatchError:
-        abort(404)
+    assert_user_challenge_match(user, payload['challenge'])
 
     return {
         "token": generate_auth_token(username, payload['challenge'])
@@ -41,7 +37,8 @@ def auth_user(username):
 
 
 @app.errorhandler(UserDoesNotExistError)
-def handle_user_does_not_exist_error(e):
+@app.errorhandler(ChallengeMismatchError)
+def handle_not_found_error(e):
     return make_error_response(404, e.code, e.message)
 
 @app.errorhandler(PiggyStoreError)
