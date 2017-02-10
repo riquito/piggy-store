@@ -35,7 +35,7 @@ def auth_user(username):
     assert_user_challenge_match(user, payload['challenge'])
 
     return {
-        "token": generate_auth_token(username, payload['challenge'])
+        "token": generate_auth_token(user)
     }
 
 
