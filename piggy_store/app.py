@@ -6,17 +6,24 @@ import logging
 logger = logging.getLogger('controller')
 
 from piggy_store.storage.users import user_storage, User
-from piggy_store.validators import new_user_validator, auth_user_validator
+from piggy_store.validators import new_user_validator, auth_user_validator, list_user_files_validator
 from piggy_store.exceptions import PiggyStoreError, UserDoesNotExistError, ChallengeMismatchError
-from piggy_store.authentication import generate_auth_token, assert_user_challenge_match
+from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
 
 app = Flask(__name__)
 app.config['TRAP_HTTP_EXCEPTIONS']=True
 FlaskJSON(app)
 
 @app.route('/user/<username>', methods=['GET'])
+@as_json
 def list_user_files(username):
-    abort(401)
+    unsafe_payload = request.get_json() or {}
+    payload = list_user_files_validator(unsafe_payload)
+    token = decode_auth_token(payload['jwt'])
+    user = user_storage.find_user_by_username(token.username)
+    return {
+        'list': []
+    }
 
 @app.route('/new-user', methods=['POST'])
 @as_json

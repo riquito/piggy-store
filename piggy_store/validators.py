@@ -29,6 +29,14 @@ def auth_user_validator(payload):
     _validate_is_not_empty('challenge', payload['challenge'])
     return dict(challenge = payload['challenge'])
 
+def list_user_files_validator(payload):
+    _validate_has_attrs(payload, ['jwt'])
+    _validate_is_string('jwt', payload['jwt'])
+
+    return dict(
+        jwt = payload['jwt']
+    )
+
 def _validate_has_attrs(data, attrs):
     for attr_name in attrs:
         if not data.get(attr_name):

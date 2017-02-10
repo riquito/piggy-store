@@ -45,3 +45,11 @@ class UserDoesNotExistError(PiggyStoreError):
 class ChallengeMismatchError(PiggyStoreError):
     CODE = 1006
     MESSAGE = 'The challenge does not match'
+
+class TokenExpiredError(PiggyStoreError):
+    CODE = 1007
+    MESSAGE = 'The token has expired'
+
+class TokenInvalidError(PiggyStoreError):
+    CODE = 1008
+    MESSAGE = 'The token is not valid'
