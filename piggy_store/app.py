@@ -25,10 +25,10 @@ def list_user_files(username):
         'list': []
     }
 
-@app.route('/new-user', methods=['POST'])
+@app.route('/user/<username>', methods=['POST'])
 @as_json
-def new_user():
-    unsafe_payload = request.get_json() or {}
+def new_user(username):
+    unsafe_payload = {'username': username, **(request.get_json() or {})}
     payload = new_user_validator(unsafe_payload)
     user = User(payload['username'], payload['challenge'])
     user_storage.add_user(user)
