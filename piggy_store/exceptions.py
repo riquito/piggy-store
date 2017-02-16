@@ -53,3 +53,12 @@ class TokenExpiredError(PiggyStoreError):
 class TokenInvalidError(PiggyStoreError):
     CODE = 1008
     MESSAGE = 'The token is not valid'
+
+class FileExistsError(PiggyStoreError):
+    CODE = 1009
+    MESSAGE = 'A file with that name already exists'
+
+class FileDoesNotExistError(PiggyStoreError):
+    CODE = 1010
+    MESSAGE = 'A file with that name does not exist'
+
