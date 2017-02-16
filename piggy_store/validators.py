@@ -25,9 +25,16 @@ def new_user_validator(payload):
     )
 
 def auth_user_validator(payload):
-    _validate_has_attrs(payload, ['challenge'])
+    _validate_has_attrs(payload, ['username', 'challenge'])
+    _validate_is_string('username', payload['username'])
+    _validate_is_string('challenge', payload['challenge'])
+    _validate_is_not_empty('username', payload['username'])
     _validate_is_not_empty('challenge', payload['challenge'])
-    return dict(challenge = payload['challenge'])
+
+    return dict(
+        username = payload['username'],
+        challenge = payload['challenge']
+    )
 
 def list_user_files_validator(payload):
     _validate_has_attrs(payload, ['jwt'])
