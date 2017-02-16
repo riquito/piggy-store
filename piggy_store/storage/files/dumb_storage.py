@@ -13,8 +13,11 @@ _db = {}
 class DumbStorage(Storage):
     def __init__(self, options):
         location = options['location']
-        self.user_db = {}
-        _db[location] = self.user_db
+
+        if not _db.get(location):
+            _db[location] = {}
+
+        self.user_db = _db[location]
 
     def add_file(self, file_instance):
         if self.user_db.get(file_instance.id):
@@ -37,4 +40,7 @@ class DumbStorage(Storage):
             raise FileDoesNotExistError()
         else:
             return file_instance
+
+    def get_files(self):
+        return self.user_db.values()
 

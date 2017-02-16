@@ -34,8 +34,8 @@ def list_user_files():
     payload = list_user_files_validator(unsafe_payload)
     token = decode_auth_token(payload['jwt'])
     user = user_storage.find_user_by_username(token.username)
-    file_storage = make_file_storage({'username': user.username})
-    files = file_storage.find_files_by_username(token.username)
+    file_storage = access_file_storage({'location': user.username})
+    files = file_storage.get_files()
 
     return {
         'list': [f.as_dict() for f in files]
