@@ -2,6 +2,7 @@ from hmac import compare_digest
 from datetime import datetime, timedelta
 import jwt
 
+from piggy_store.config import config
 from piggy_store.exceptions import (
     ChallengeMismatchError,
     TokenExpiredError,
@@ -25,7 +26,7 @@ def generate_auth_token(user):
             'exp': now + timedelta(hours=exp_after_n_hours),
             'iat': now
         },
-        'XXX FIXME secret to load from config file', 
+        config['secret'],
         algorithm='HS256'
     ).decode('utf-8')
 
@@ -33,7 +34,7 @@ def decode_auth_token(raw_token):
     try:
         token_payload = jwt.decode(
             raw_token,
-            'XXX FIXME secret to load from config file',
+            config['secret'],
             algorithms=['HS256']
         )
 

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import jwt
 
+from piggy_store.config import config
 from piggy_store.exceptions import (
     TokenExpiredError,
     TokenInvalidError
@@ -23,7 +24,7 @@ def generate_upload_token(user, filename, checksum):
             'exp': now + timedelta(minutes=exp_after_n_minutes),
             'iat': now
         },
-        'XXX FIXME secret to load from config file', 
+        config['secret'],
         algorithm='HS256'
     ).decode('utf-8')
 
@@ -31,7 +32,7 @@ def decode_upload_token(raw_token):
     try:
         token_payload = jwt.decode(
             raw_token,
-            'XXX FIXME secret to load from config file',
+            config['secret'],
             algorithms=['HS256']
         )
 

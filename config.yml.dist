@@ -1,0 +1,9 @@
+debug: true
+secret: {{ default .Env.PIGGYSTORE__SECRET }}
+uploads:
+    max_content_length: 3M
+    folder: {{ default .Env.PIGGYSTORE__UPLOAD_FOLDER "/tmp/" }}
+server:
+    host: {{ default .Env.PIGGYSTORE__SERVER_HOST "127.0.0.1" }}
+    port: {{ default .Env.PIGGYSTORE__SERVER_PORT 5000 }}
+
