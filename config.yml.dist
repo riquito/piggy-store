@@ -6,4 +6,10 @@ uploads:
 server:
     host: {{ default .Env.PIGGYSTORE__SERVER_HOST "127.0.0.1" }}
     port: {{ default .Env.PIGGYSTORE__SERVER_PORT 5000 }}
+redis:
+    host: localhost
+    port: 6379
+    database: 0
+storage:
+    users: redis
 
