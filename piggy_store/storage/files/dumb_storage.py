@@ -3,9 +3,12 @@
 
 from base64 import standard_b64encode
 
+from flask import Blueprint, abort, request, url_for
+
 from piggy_store.exceptions import FileExistsError, FileDoesNotExistError
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.storage.files.storage import Storage
+from piggy_store.upload import generate_upload_token
 from piggy_store.helper import hash_checksum
 
 _db = {}
@@ -13,6 +16,7 @@ _db = {}
 class DumbStorage(Storage):
     def __init__(self, options):
         user_dir = options['user_dir']
+        self.user_dir = user_dir
 
         if not _db.get(user_dir):
             _db[user_dir] = {}
@@ -43,4 +47,14 @@ class DumbStorage(Storage):
 
     def get_files_list(self):
         return self.user_db.values()
+
+    def get_presigned_upload_url(self, filename):
+        return url_for(
+            'controller.upload', # meh, any better way?
+            signed_upload_request = generate_upload_token(
+                self.user_dir,
+                filename
+            ),
+            _external = True
+        )
 

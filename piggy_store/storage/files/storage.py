@@ -15,3 +15,7 @@ class Storage(metaclass=ABCMeta):
     @abstractmethod
     def get_files_list(self):
         raise NotImplementedError()
+
+    @abstractmethod
+    def get_presigned_upload_url(self):
+        raise NotImplementedError()

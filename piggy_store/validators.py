@@ -45,24 +45,21 @@ def list_user_files_validator(payload):
     )
 
 def request_upload_url_validator(payload):
-    _validate_has_attrs(payload, ['jwt', 'filename', 'checksum'])
+    _validate_has_attrs(payload, ['jwt', 'filename'])
     _validate_is_string('jwt', payload['jwt'])
     _validate_is_string('filename', payload['filename'])
-    _validate_is_string('checksum', payload['checksum'])
 
     return dict(
         jwt = payload['jwt'],
-        filename = payload['filename'],
-        checksum = payload['checksum']
+        filename = payload['filename']
     )
 
 def upload_validator(payload):
-    _validate_has_attrs(payload, ['signed_upload_request', 'file'])
+    _validate_has_attrs(payload, ['signed_upload_request'])
     _validate_is_string('signed_upload_request', payload['signed_upload_request'])
 
     return dict(
-        signed_upload_request = payload['signed_upload_request'],
-        file = payload['file']
+        signed_upload_request = payload['signed_upload_request']
     )
 
 def _validate_has_attrs(data, attrs):

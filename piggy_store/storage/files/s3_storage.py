@@ -1,4 +1,5 @@
 from io import BytesIO
+from datetime import timedelta
 
 from minio import Minio
 from minio.error import ResponseError
@@ -95,4 +96,17 @@ class S3Storage(Storage):
                 checksum = obj.etag,
                 url = self._get_temporary_url(obj.object_name)
             )
+
+    def get_presigned_upload_url(self, filename):
+        # presigned Put object URL for an object name, expires in 3 days.
+        try:
+            return self.client.presigned_put_object(
+                self.bucket,
+                self._get_object_name(filename),
+                expires = timedelta(days=3)
+            )
+        # Response error is still possible since internally presigned does get
+        # bucket location.
+        except ResponseError as e:
+            raise e
 

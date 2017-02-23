@@ -1,8 +1,10 @@
-from flask import Blueprint, abort, request, url_for
+from flask import Blueprint, abort, request
 from flask_json import FlaskJSON, as_json
 import werkzeug
 import logging
 import tempfile
+from binascii import hexlify
+from base64 import b64decode
 
 logger = logging.getLogger('controller')
 
@@ -17,7 +19,7 @@ from piggy_store.validators import (
 from piggy_store.exceptions import PiggyStoreError, UserDoesNotExistError, ChallengeMismatchError, ClientChecksumError, ServerUploadError
 from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
 from piggy_store.storage.files import access_file_storage, FileDTO
-from piggy_store.upload import generate_upload_token, decode_upload_token
+from piggy_store.upload import decode_upload_token
 from piggy_store.helper import hash_checksum
 
 bp = blueprint = Blueprint('controller', __name__)
@@ -68,30 +70,27 @@ def request_upload_url():
     token = decode_auth_token(payload['jwt'])
     user = user_storage.find_user_by_username(token.username)
 
+    file_storage = access_file_storage({'user_dir': user.username})
     return {
-        'url': url_for(
-            'controller.upload',
-            username = user.username,
-            signed_upload_request = generate_upload_token(
-                user,
-                payload['filename'],
-                payload['checksum']
-            )
-        )
+        'url': file_storage.get_presigned_upload_url(payload['filename'])
     }
 
-@bp.route('/file/upload', methods=['POST'])
+@bp.route('/file/upload', methods=['PUT'])
 @as_json
 def upload():
-    unsafe_payload = dict(**request.args.to_dict(), **request.files.to_dict())
+    unsafe_payload = request.args.to_dict()
     payload = upload_validator(unsafe_payload)
     upload_token = decode_upload_token(payload['signed_upload_request'])
     user = user_storage.find_user_by_username(upload_token.username)
 
-    content_as_bytes = payload['file'].read()
+    content_as_bytes = request.stream.read()
     content_checksum = hash_checksum(content_as_bytes).hexdigest()
 
-    if not upload_token.checksum == content_checksum:
+    # header content-MD5 is base64(md5(file) <- bytes, not hexstring)
+    header_content_md5 = request.headers.get('Content-MD5', '').strip()
+    header_content_md5_as_hex = hexlify(b64decode(header_content_md5)).decode('ascii')
+
+    if not header_content_md5_as_hex == content_checksum:
         raise ClientChecksumError()
 
     file_storage = access_file_storage({'user_dir': user.username})

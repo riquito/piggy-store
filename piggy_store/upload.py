@@ -8,19 +8,17 @@ from piggy_store.exceptions import (
 )
 
 class UploadToken:
-    def __init__(self, username, filename, checksum):
+    def __init__(self, username, filename):
         self.username = username
         self.filename = filename
-        self.checksum = checksum
 
-def generate_upload_token(user, filename, checksum):
+def generate_upload_token(username, filename):
     exp_after_n_minutes = 85
     now = datetime.utcnow()
     return jwt.encode(
         {
-            'username': user.username,
+            'username': username,
             'filename': filename,
-            'checksum': checksum,
             'exp': now + timedelta(minutes=exp_after_n_minutes),
             'iat': now
         },
@@ -38,8 +36,7 @@ def decode_upload_token(raw_token):
 
         return UploadToken(
             username = token_payload['username'],
-            filename = token_payload['filename'],
-            checksum = token_payload['checksum']
+            filename = token_payload['filename']
         )
 
     except jwt.ExpiredSignatureError:
