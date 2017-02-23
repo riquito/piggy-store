@@ -30,7 +30,7 @@ def list_user_files():
     token = decode_auth_token(payload['jwt'])
     user = user_storage.find_user_by_username(token.username)
     file_storage = access_file_storage({'user_dir': user.username})
-    files = file_storage.get_files()
+    files = file_storage.get_files_list()
 
     return {
         'list': [f.as_dict() for f in files]

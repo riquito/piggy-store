@@ -41,6 +41,6 @@ class DumbStorage(Storage):
         else:
             return file_instance
 
-    def get_files(self):
+    def get_files_list(self):
         return self.user_db.values()
 
