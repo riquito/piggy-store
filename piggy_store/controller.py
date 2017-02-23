@@ -102,7 +102,7 @@ def upload():
     })
 
     file_inserted = file_storage.add_file(file_to_upload)
-    file_retrieved = file_storage.find_file_by_id(file_inserted.id, ignore_cache=True)
+    file_retrieved = file_storage.find_file_by_filename(file_inserted.filename, ignore_cache=True)
 
     if file_inserted != file_retrieved:
         raise ServerUploadError()

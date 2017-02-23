@@ -1,15 +1,11 @@
-from uuid import uuid4
-
 class FileDTO:
     def __init__(self,
-            id=None,
             filename=None,
             checksum=None,
             size=None,
             url=None,
             content=None):
 
-        self.id = id or str(uuid4())
         self.filename = filename
         self.checksum = checksum
         self.url = url
@@ -22,7 +18,6 @@ class FileDTO:
 
     def as_dict(self):
         return {
-            'id': self.id,
             'filename': self.filename,
             'checksum': self.checksum,
             'size': self.size,

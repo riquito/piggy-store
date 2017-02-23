@@ -20,7 +20,7 @@ class DumbStorage(Storage):
         self.user_db = _db[user_dir]
 
     def add_file(self, file_instance):
-        if self.user_db.get(file_instance.id):
+        if self.user_db.get(file_instance.filename):
             raise FileExistsError()
         else:
             raw_file = file_instance.as_dict()
@@ -31,11 +31,11 @@ class DumbStorage(Storage):
 
                 raw_file['checksum'] = hash_checksum(file_instance.content).hexdigest()
 
-            self.user_db[file_instance.id] = FileDTO(**raw_file)
+            self.user_db[file_instance.filename] = FileDTO(**raw_file)
             return file_instance
     
-    def find_file_by_id(self, id, ignore_cache=True):
-        file_instance = self.user_db.get(id)
+    def find_file_by_filename(self, filename, ignore_cache=True):
+        file_instance = self.user_db.get(filename)
         if not file_instance:
             raise FileDoesNotExistError()
         else:
