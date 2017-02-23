@@ -12,12 +12,12 @@ _db = {}
 
 class DumbStorage(Storage):
     def __init__(self, options):
-        location = options['location']
+        user_dir = options['user_dir']
 
-        if not _db.get(location):
-            _db[location] = {}
+        if not _db.get(user_dir):
+            _db[user_dir] = {}
 
-        self.user_db = _db[location]
+        self.user_db = _db[user_dir]
 
     def add_file(self, file_instance):
         if self.user_db.get(file_instance.id):

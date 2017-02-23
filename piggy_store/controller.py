@@ -29,7 +29,7 @@ def list_user_files():
     payload = list_user_files_validator(unsafe_payload)
     token = decode_auth_token(payload['jwt'])
     user = user_storage.find_user_by_username(token.username)
-    file_storage = access_file_storage({'location': user.username})
+    file_storage = access_file_storage({'user_dir': user.username})
     files = file_storage.get_files()
 
     return {
@@ -94,7 +94,7 @@ def upload():
     if not upload_token.checksum == content_checksum:
         raise ClientChecksumError()
 
-    file_storage = access_file_storage({'location': user.username})
+    file_storage = access_file_storage({'user_dir': user.username})
     file_to_upload = FileDTO(**{
         'filename': upload_token.filename,
         'content': content_as_bytes,
