@@ -36,3 +36,6 @@ class FileDTO:
         else:
             return self.checksum == f.checksum and self.filename == f.filename
 
+    def __repr__(self):
+        return '<FileDTO filename:{} checksum:{}>'.format(self.filename, self.checksum)
+
