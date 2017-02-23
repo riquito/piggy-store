@@ -1,6 +1,10 @@
-class Storage:
+from abc import ABCMeta, abstractmethod
+
+class Storage(metaclass=ABCMeta):
+    @abstractmethod
     def add_file(self, file_instance):
         raise NotImplementedError()
 
-    def find_file_by_id(self, id):
+    @abstractmethod
+    def find_file_by_filename(self, filename):
         raise NotImplementedError()
