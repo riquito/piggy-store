@@ -2,7 +2,6 @@ from flask import Blueprint, abort, request, url_for
 from flask_json import FlaskJSON, as_json
 import werkzeug
 import logging
-from hashlib import sha1
 import tempfile
 
 logger = logging.getLogger('controller')
@@ -19,6 +18,7 @@ from piggy_store.exceptions import PiggyStoreError, UserDoesNotExistError, Chall
 from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
 from piggy_store.storage.files import access_file_storage, FileDTO
 from piggy_store.upload import generate_upload_token, decode_upload_token
+from piggy_store.helper import hash_checksum
 
 bp = blueprint = Blueprint('controller', __name__)
 
@@ -89,7 +89,7 @@ def upload():
     user = user_storage.find_user_by_username(upload_token.username)
 
     content_as_bytes = payload['file'].read()
-    content_checksum = sha1(content_as_bytes).hexdigest()
+    content_checksum = hash_checksum(content_as_bytes).hexdigest()
 
     if not upload_token.checksum == content_checksum:
         raise ClientChecksumError()
