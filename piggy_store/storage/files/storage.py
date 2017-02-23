@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
 class Storage(metaclass=ABCMeta):
+    def init(self):
+        pass
+
     @abstractmethod
     def add_file(self, file_instance):
         raise NotImplementedError()

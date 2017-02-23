@@ -1,5 +1,6 @@
 import yaml
 import re
+from datetime import timedelta
 
 config = {}
 
@@ -16,7 +17,24 @@ def _size_from_human_to_bytes(humansize):
     else:
         # default to kilobytes
         return int(humansize) * 1024
-        
+
+def _time_delta_from_human_to_timedelta(humandelta):
+    match = re.match(r'\s*(\d+)\s*(d|h|m|s|days?|hours?|minutes?|seconds?)\s*$', humandelta, re.I)
+    time_resolution = 'minutes'
+    if match:
+        value = int(match.group(1))
+        time_resolution = {
+            'd': 'days',
+            'h': 'hours',
+            'm': 'minutes',
+            's': 'seconds'
+        }[match.group(2)[0].lower()]
+    else:
+        value = int(humandelta)
+
+    kwargs = { time_resolution: value }
+    return timedelta(**kwargs)
+
 
 def load(config_path):
     global config
@@ -30,5 +48,9 @@ def load(config_path):
     config['uploads']['max_content_length'] = _size_from_human_to_bytes(
         config['uploads']['max_content_length']
     )
-    
+
+    config['files']['download_url_expire_after'] = _time_delta_from_human_to_timedelta(
+        config['files']['download_url_expire_after']
+    )
+
     return config

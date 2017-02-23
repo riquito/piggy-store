@@ -12,4 +12,14 @@ redis:
     database: 0
 storage:
     users: redis
+    files: s3
+s3:
+    host: s3.amazonaws.com
+    region: us-east-1
+    bucket: ~
+    secure: true
+    access_key: ~
+    secret_key: ~
+files:
+    download_url_expire_after: 5m
 

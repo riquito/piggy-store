@@ -1,4 +1,5 @@
 appdirs==1.4.0
+certifi==2017.1.23
 click==6.7
 Flask==0.12
 Flask-JSON==0.3.0
@@ -6,11 +7,14 @@ hiredis==0.2.0
 itsdangerous==0.24
 Jinja2==2.9.5
 MarkupSafe==0.23
+minio==2.1.0
 packaging==16.8
 PyJWT==1.4.2
 pyparsing==2.1.10
+pytz==2016.10
 PyYAML==3.12
 redis==2.10.5
 six==1.10.0
+urllib3==1.20
 uWSGI==2.0.14
 Werkzeug==0.11.15
