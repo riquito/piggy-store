@@ -1,12 +1,8 @@
 from flask import Blueprint, abort, request
 from flask_json import FlaskJSON, as_json
-import werkzeug
-import logging
 import tempfile
 from binascii import hexlify
 from base64 import b64decode
-
-logger = logging.getLogger('controller')
 
 from piggy_store.storage.users import user_storage, User
 from piggy_store.validators import (
@@ -16,7 +12,7 @@ from piggy_store.validators import (
     request_upload_url_validator,
     upload_validator
 )
-from piggy_store.exceptions import PiggyStoreError, UserDoesNotExistError, ChallengeMismatchError, ClientChecksumError, ServerUploadError
+from piggy_store.exceptions import ClientChecksumError, ServerUploadError
 from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
 from piggy_store.storage.files import access_file_storage, FileDTO
 from piggy_store.upload import decode_upload_token
@@ -110,45 +106,3 @@ def upload():
         'file': file_retrieved.as_dict()
     }
 
-
-
-@bp.errorhandler(UserDoesNotExistError)
-@bp.errorhandler(ChallengeMismatchError)
-def handle_not_found_error(e):
-    return make_error_response(404, e.code, e.message)
-
-@bp.errorhandler(ServerUploadError)
-def handle_piggy_store_errors(e):
-    logger.exception(e)
-    return make_error_response(500, e.code, e.message)
-
-@bp.errorhandler(PiggyStoreError)
-def handle_piggy_store_errors(e):
-    return make_error_response(409, e.code, e.message)
-
-def on_flask_http_exception(e):
-    if isinstance(e, werkzeug.exceptions.HTTPException):
-        return make_error_response(e.code, e.code, e.name)
-    else:
-        # happens when there was an error handling the exception
-        logger.exception(e)
-        return make_error_response(500, 500, 'Internal Server Error')
-
-@bp.errorhandler(Exception)
-def on_error(e):
-    logger.exception(e)
-    return make_error_response(500, 500, 'Internal Server Error')
-
-@as_json
-def make_error_response(status, subcode, message):
-    return {
-        'error': {
-            'code': subcode,
-            'message': message
-        },
-        'status': status
-    }, status
-
-
-for werkzeugException in werkzeug.exceptions.default_exceptions:
-    blueprint.register_error_handler(werkzeugException, on_flask_http_exception)
