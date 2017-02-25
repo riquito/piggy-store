@@ -58,3 +58,9 @@ class DumbStorage(Storage):
             _external = True
         )
 
+    def remove_by_filename(self, filename):
+        try:
+            self.user_db.pop(filename)
+        except KeyError:
+            pass
+

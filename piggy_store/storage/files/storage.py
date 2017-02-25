@@ -19,3 +19,7 @@ class Storage(metaclass=ABCMeta):
     @abstractmethod
     def get_presigned_upload_url(self):
         raise NotImplementedError()
+
+    @abstractmethod
+    def remove_by_filename(self, filename):
+        raise NotImplementedError

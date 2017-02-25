@@ -110,3 +110,9 @@ class S3Storage(Storage):
         except ResponseError as e:
             raise e
 
+    def remove_by_filename(self, filename):
+        self.client.remove_object(
+            self.bucket,
+            self._get_object_name(filename)
+        )
+

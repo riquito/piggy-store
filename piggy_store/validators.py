@@ -54,6 +54,16 @@ def request_upload_url_validator(payload):
         filename = payload['filename']
     )
 
+def file_delete_validator(payload):
+    _validate_has_attrs(payload, ['jwt', 'filename'])
+    _validate_is_string('jwt', payload['jwt'])
+    _validate_is_string('filename', payload['filename'])
+
+    return dict(
+        jwt = payload['jwt'],
+        filename = payload['filename']
+    )
+
 def upload_validator(payload):
     _validate_has_attrs(payload, ['signed_upload_request'])
     _validate_is_string('signed_upload_request', payload['signed_upload_request'])

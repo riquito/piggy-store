@@ -10,6 +10,7 @@ from piggy_store.validators import (
     auth_user_validator,
     list_user_files_validator,
     request_upload_url_validator,
+    file_delete_validator,
     upload_validator
 )
 from piggy_store.exceptions import ClientChecksumError, ServerUploadError
@@ -57,6 +58,18 @@ def auth_user():
     return {
         "token": generate_auth_token(user)
     }
+
+@bp.route('/file/delete', methods=['DELETE'])
+@as_json
+def file_delete():
+    unsafe_payload = request.get_json() or {}
+    payload = file_delete_validator(unsafe_payload)
+    token = decode_auth_token(payload['jwt'])
+    user = user_storage.find_user_by_username(token.username)
+
+    file_storage = access_file_storage({'user_dir': user.username})
+    file_storage.remove_by_filename(payload['filename'])
+    return {}
 
 @bp.route('/file/request-upload-url', methods=['POST'])
 @as_json
