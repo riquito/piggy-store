@@ -62,11 +62,3 @@ class FileDoesNotExistError(PiggyStoreError):
     CODE = 1010
     MESSAGE = 'A file with that name does not exist'
 
-class ClientChecksumError(PiggyStoreError):
-    CODE = 1011
-    MESSAGE = 'The file\'s checksum doesn\'t match the checksum provided'
-
-class ServerUploadError(PiggyStoreError):
-    CODE = 1012
-    MESSAGE = 'An error occurred while uploading a file'
-

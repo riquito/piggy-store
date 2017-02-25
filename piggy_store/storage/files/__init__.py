@@ -12,6 +12,5 @@ if config['storage']['files'] == 's3':
         storage.init()
         return storage
 else:
-    from piggy_store.storage.files.dumb_storage import DumbStorage
-    access_file_storage = DumbStorage
+    raise NotImplementedError('No such file storage: ' + config['storage']['files'])
 

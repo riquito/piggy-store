@@ -6,18 +6,13 @@ import werkzeug
 from piggy_store.exceptions import (
     PiggyStoreError,
     UserDoesNotExistError,
-    ChallengeMismatchError,
-    ServerUploadError
+    ChallengeMismatchError
 )
 
 logger = logging.getLogger('errors')
 
 def handle_not_found_error(e):
     return make_error_response(404, e.code, e.message)
-
-def handle_detailed_500_errors(e):
-    logger.exception(e)
-    return make_error_response(500, e.code, e.message)
 
 def handle_piggy_store_errors(e):
     return make_error_response(409, e.code, e.message)
@@ -50,10 +45,6 @@ def register_default_exceptions(app):
     # 404s
     for exc_class in (UserDoesNotExistError, ChallengeMismatchError):
         app.register_error_handler(exc_class, handle_not_found_error)
-
-    # 500 whose real reason can show
-    for exc_class in (ServerUploadError, ):
-        app.register_error_handler(exc_class, handle_detailed_500_errors)
 
     # 409, generic error
     for exc_class in (PiggyStoreError, ):

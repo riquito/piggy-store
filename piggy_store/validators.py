@@ -64,14 +64,6 @@ def file_delete_validator(payload):
         filename = payload['filename']
     )
 
-def upload_validator(payload):
-    _validate_has_attrs(payload, ['signed_upload_request'])
-    _validate_is_string('signed_upload_request', payload['signed_upload_request'])
-
-    return dict(
-        signed_upload_request = payload['signed_upload_request']
-    )
-
 def _validate_has_attrs(data, attrs):
     for attr_name in attrs:
         if not data.get(attr_name):
