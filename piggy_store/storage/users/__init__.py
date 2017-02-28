@@ -5,6 +5,5 @@ if config['storage']['users'] == 'redis':
     from piggy_store.storage.users.redis_storage import RedisStorage
     user_storage = RedisStorage()
 else:
-    from piggy_store.storage.users.dumb_storage import DumbStorage
-    user_storage = DumbStorage()
+    raise NotImplementedError('No such user storage: ' + config['storage']['users'])
 
