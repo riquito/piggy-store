@@ -2,3 +2,6 @@
 *.pyo
 __pycache__
 config.yml
+*.hwm
+*.pwd
+*.pwi

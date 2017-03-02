@@ -1,0 +1,83 @@
+{
+    "variables": {
+        "version": "latest"
+    },
+    "builders": [
+        {
+            "type": "docker",
+            "name": "piggy-store-base-image",
+            "image": "ubuntu:16.04",
+            "commit": true
+        },
+        {
+            "type": "docker",
+            "name": "docker-piggy-store",
+            "image": "riquito/piggy-store-base-image:latest",
+            "pull": false,
+            "commit": true,
+            "changes": [
+                "USER piggy-user",
+                "WORKDIR /app",
+                "ENTRYPOINT confd -confdir /app/configs -onetime -backend env && uwsgi -i /tmp/uwsgi.ini",
+                "EXPOSE 80 443"
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": ".git/",
+            "destination": "/app/.git"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "apt-get update",
+                "apt-get install -y --no-install-recommends git wget python3-pip python3-setuptools gcc python3-dev",
+                "useradd piggy-user",
+                "pip3 install --upgrade pip",
+                "cd /app",
+                "git reset --hard HEAD",
+                "pip3 install -r requirements.lock",
+                "wget https://github.com/kelseyhightower/confd/releases/download/v0.12.0-alpha3/confd-0.12.0-alpha3-linux-amd64 -O /usr/local/bin/confd",
+                "chmod +x /usr/local/bin/confd"
+            ],
+            "only": [
+                "piggy-store-base-image"
+            ]
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "cd /app",
+                "git reset --hard HEAD",
+                "pip3 install -r requirements.lock",
+                "chown -R piggy-user /app",
+                "chmod -R u+rwx /app",
+                "apt-get remove -y git gcc",
+                "apt-get autoremove -y"
+            ],
+            "only": [
+                "docker-piggy-store"
+            ]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "repository": "riquito/piggy-store-base-image",
+            "tag": "{{ user `version` }}",
+            "only": [
+                "piggy-store-base-image"
+            ]
+        },
+        {
+            "type": "docker-tag",
+            "repository": "riquito/piggy-store",
+            "tag": "{{ user `version` }}",
+            "only": [
+                "docker-piggy-store"
+            ]
+        }
+    ]
+}
