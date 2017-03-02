@@ -3,8 +3,8 @@ secret: {{ getv "/app/piggy/secret" "not-so-secret" }}
 uploads:
     max_content_length: 1M
 server:
-    host: {{ getv "/app/piggy/host" "127.0.0.1" }}
-    port: {{ getv "/app/piggy/port" "5000" }}
+    host: {{ getv "/app/piggy/host" "0.0.0.0" }}
+    port: {{ getv "/app/piggy/port" "80" }}
 redis:
     host: localhost
     host: {{ getv "/app/redis/host" "127.0.0.1" }}
