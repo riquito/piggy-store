@@ -3,15 +3,14 @@ secret: {{ getv "/app/piggy/secret" "not-so-secret" }}
 uploads:
     max_content_length: 1M
 server:
-    host: {{ getv "/app/piggy/host" }}
-    port: {{ getv "/app/piggy/port" }}
+    host: {{ getv "/app/piggy/host" "0.0.0.0" }}
+    port: {{ getv "/app/piggy/port" "5000" }}
 redis:
-    host: localhost
-    host: {{ getv "/app/redis/host" "127.0.0.1" }}
+    host: {{ getv "/app/redis/host" user_db }}
     port: {{ getv "/app/redis/port" "6379" }}
     database: {{ getv "/app/redis/db" "0" }}
 s3:
-    host:       {{ getv "/app/s3/host" "localhost:9000" }}
+    host:       {{ getv "/app/s3/host" "s3_like:9000" }}
     region:     {{ getv "/app/s3/region" "us-east-1" }}
     bucket:     {{ getv "/app/s3/bucket" "piggy-store-bucket" }}
     secure:     {{ getv "/app/s3/secure" }}
