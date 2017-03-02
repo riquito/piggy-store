@@ -19,7 +19,7 @@
                 "USER piggy-user",
                 "WORKDIR /app",
                 "ENTRYPOINT confd -confdir /app/configs -onetime -backend env && uwsgi -i /tmp/uwsgi.ini",
-                "EXPOSE 80 443"
+                "EXPOSE 5000"
             ]
         }
     ],
@@ -33,7 +33,7 @@
             "type": "shell",
             "inline": [
                 "apt-get update",
-                "apt-get install -y --no-install-recommends git wget python3-pip python3-setuptools gcc python3-dev unattended-upgrades",
+                "apt-get install -y --no-install-recommends git wget python3-pip python3-setuptools gcc python3-dev unattended-upgrades libpcre3 libpcre3-dev",
                 "unattended-upgrades -d",
                 "useradd piggy-user",
                 "pip3 install --upgrade pip",
