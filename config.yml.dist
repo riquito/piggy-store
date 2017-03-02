@@ -9,9 +9,6 @@ redis:
     host: localhost
     port: 6379
     database: 0
-storage:
-    users: redis
-    files: s3
 s3:
     host: s3.amazonaws.com
     region: us-east-1

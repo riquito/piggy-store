@@ -53,4 +53,14 @@ def load(config_path):
         config['files']['download_url_expire_after']
     )
 
+    if not config.get('storage'):
+        config['storage'] = {}
+
+    if not config['storage'].get('users'):
+        config['storage']['users'] = 'redis'
+
+    if not config['storage'].get('files'):
+        config['storage']['files'] = 's3'
+
     return config
+
