@@ -1,0 +1,16 @@
+[template]
+src = "piggy-store.conf.tmpl"
+dest = "/app/config.yml"
+keys = [
+    "/app/redis/host",
+    "/app/redis/port",
+    "/app/redis/db",
+    "/app/piggy/host",
+    "/app/piggy/port",
+    "/app/piggy/secret",
+    "/app/s3/host",
+    "/app/s3/region",
+    "/app/s3/bucket",
+    "/app/s3/access_key",
+    "/app/s3/secret_key",
+]

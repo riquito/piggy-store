@@ -1,0 +1,13 @@
+[uwsgi]
+module = piggy-store
+protocol = http
+
+master = true
+processes = 5
+
+vacuum = true
+die-on-term = true
+need-app = true
+
+socket = {{ getv "/app/piggy/host" "0.0.0.0" }}:{{ getv "/app/piggy/port" "5000" }}
+

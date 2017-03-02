@@ -1,0 +1,7 @@
+[template]
+src = "uwsgi.ini.tmpl"
+dest = "/tmp/uwsgi.ini"
+keys = [
+    "/app/piggy/host",
+    "/app/piggy/port",
+]
