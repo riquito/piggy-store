@@ -33,7 +33,8 @@
             "type": "shell",
             "inline": [
                 "apt-get update",
-                "apt-get install -y --no-install-recommends git wget python3-pip python3-setuptools gcc python3-dev",
+                "apt-get install -y --no-install-recommends git wget python3-pip python3-setuptools gcc python3-dev unattended-upgrades",
+                "unattended-upgrades -d",
                 "useradd piggy-user",
                 "pip3 install --upgrade pip",
                 "cd /app",
