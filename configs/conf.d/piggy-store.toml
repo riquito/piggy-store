@@ -11,7 +11,7 @@ keys = [
     "/app/s3/host",
     "/app/s3/region",
     "/app/s3/bucket",
-    "/app/s3/access_key",
-    "/app/s3/secret_key",
+    "/app/s3/key/access",
+    "/app/s3/key/secret",
     "/app/s3/secure",
 ]

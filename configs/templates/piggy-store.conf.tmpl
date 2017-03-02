@@ -15,8 +15,8 @@ s3:
     region:     {{ getv "/app/s3/region" "us-east-1" }}
     bucket:     {{ getv "/app/s3/bucket" "piggy-store-bucket" }}
     secure:     {{ getv "/app/s3/secure" }}
-    access_key: {{ getv "/app/s3/access_key" }}
-    secret_key: {{ getv "/app/s3/secret_key" }}
+    access_key: {{ getv "/app/s3/key/access" }}
+    secret_key: {{ getv "/app/s3/key/secret" }}
 files:
     download_url_expire_after: 5m
 
