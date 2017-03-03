@@ -1,0 +1,37 @@
+version: '3'
+services:
+    web:
+        image: riquito/piggy-store
+        expose:
+            - "5000"
+        ports:
+            - "127.0.0.1:5000:5000"
+        depends_on:
+            - user_db
+            - s3_like
+        entrypoint: confd  -confdir /app/configs -onetime -backend env && uwsgi -i /tmp/uwsgi.ini
+        links:
+            - user_db
+            - s3_like:s3like.com
+        environment:
+            APP_S3_SECURE: 'false'
+            APP_S3_KEY_ACCESS: notsecret_access_key
+            APP_S3_KEY_SECRET: notsecret_secret_key
+            APP_PIGGY_HOST: '0.0.0.0'
+            APP_PIGGY_PORT: '5000'
+    user_db:
+        image: redis:3.2.8-alpine
+    s3_like:
+        image: minio/minio:edge
+        volumes:
+            - ./var/minio/config:/root/.minio
+            - ./var/minio/volumes:/export
+        entrypoint: minio server var/minio/volumes/hd1 var/minio/volumes/hd2 var/minio/volumes/hd3 var/minio/volumes/hd4
+        expose:
+            - "9000"
+        ports:
+            - "9000:9000"
+        environment:
+            MINIO_ACCESS_KEY: notsecret_access_key
+            MINIO_SECRET_KEY: notsecret_secret_key
+
