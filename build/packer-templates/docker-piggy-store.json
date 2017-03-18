@@ -18,7 +18,7 @@
             "changes": [
                 "USER piggy-user",
                 "WORKDIR /app",
-                "ENTRYPOINT confd -confdir /app/configs -onetime -backend env && uwsgi -i /tmp/uwsgi.ini",
+                "ENTRYPOINT confd -confdir /app/configs -onetime -backend env && exec /usr/local/bin/uwsgi -i /tmp/uwsgi.ini",
                 "EXPOSE 5000"
             ]
         }
