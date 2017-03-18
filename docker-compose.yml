@@ -9,7 +9,6 @@ services:
         depends_on:
             - user_db
             - s3_like
-        entrypoint: confd  -confdir /app/configs -onetime -backend env && uwsgi -i /tmp/uwsgi.ini
         links:
             - user_db
             - s3_like:s3like.com
