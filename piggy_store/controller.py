@@ -11,6 +11,7 @@ from piggy_store.validators import (
 )
 from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
 from piggy_store.storage.files import access_file_storage
+from piggy_store.exceptions import UserExistsError
 
 bp = blueprint = Blueprint('controller', __name__)
 
@@ -41,8 +42,14 @@ def list_user_files():
 def new_user():
     unsafe_payload = request.get_json() or {}
     payload = new_user_validator(unsafe_payload)
-    user = User(payload['username'], payload['challenge'])
-    user_storage.add_user(user)
+    try:
+        user = User(payload['username'], payload['challenge'])
+        user_storage.add_user(user)
+    except UserExistsError:
+        # Sacrifice route purity for practicality. If the user exists
+        # check the challenge and return the token
+        user = user_storage.find_user_by_username(payload['username'])
+        assert_user_challenge_match(user, payload['challenge'])
 
     return {
         'token': generate_auth_token(user)
