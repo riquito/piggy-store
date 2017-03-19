@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort, request, url_for
 from flask_json import FlaskJSON, as_json
 
 from piggy_store.storage.users import user_storage, User
@@ -23,6 +23,16 @@ def add_preflight_request_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, POST, PUT, DELETE'
     return response
 
+@bp.route('/', methods=['GET'])
+@as_json
+def root():
+    return {
+        'links': {
+            **hateoas_auth(),
+            **hateoas_new_user()
+        }
+    }
+
 @bp.route('/files/', methods=['GET'])
 @as_json
 def list_user_files():
@@ -34,7 +44,15 @@ def list_user_files():
     files = file_storage.get_files_list()
 
     return {
-        'list': [f.as_dict() for f in files]
+        'content': [
+            {
+                'content': f.as_dict(),
+                'links': {
+                    **hateoas_file_read(f),
+                    **hateoas_file_delete()
+                }
+            } for f in files
+        ]
     }
 
 @bp.route('/user/', methods=['POST'])
@@ -52,7 +70,13 @@ def new_user():
         assert_user_challenge_match(user, payload['challenge'])
 
     return {
-        'token': generate_auth_token(user)
+        'content': {
+            'token': generate_auth_token(user)
+        },
+        'links': {
+            **hateoas_list_user_files(),
+            **hateoas_request_upload_url()
+        }
     }
 
 @bp.route('/user/auth', methods=['POST'])
@@ -64,7 +88,13 @@ def auth_user():
     assert_user_challenge_match(user, payload['challenge'])
 
     return {
-        "token": generate_auth_token(user)
+        'content': {
+            'token': generate_auth_token(user)
+        },
+        'links': {
+            **hateoas_list_user_files(),
+            **hateoas_request_upload_url()
+        }
     }
 
 @bp.route('/file/delete', methods=['DELETE'])
@@ -89,6 +119,58 @@ def request_upload_url():
 
     file_storage = access_file_storage({'user_dir': user.username})
     return {
-        'url': file_storage.get_presigned_upload_url(payload['filename'])
+        'links': {
+            'upload_url': {
+                'rel': 'file',
+                'href': file_storage.get_presigned_upload_url(payload['filename'])
+            }
+        }
     }
 
+def hateoas_auth_user():
+    return {
+        'auth_user': {
+            'rel': 'user',
+            'href': url_for('controller.auth_user', _external=True)
+        }
+    }
+
+def hateoas_new_user():
+    return {
+        'create_user': {
+            'rel': 'user',
+            'href': url_for('controller.new_user', _external=True)
+        }
+    }
+
+def hateoas_list_user_files():
+    return {
+        'files_list': {
+            'rel': 'file',
+            'href': url_for('controller.list_user_files', _external=True)
+        }
+    }
+
+def hateoas_file_delete():
+    return {
+        'delete': {
+            'rel': 'file',
+            'href': url_for('controller.file_delete', _external=True)
+        }
+    }
+
+def hateoas_file_read(f):
+    return {
+        'read': {
+            'rel': 'file',
+            'href': f.url
+        }
+    }
+
+def hateoas_request_upload_url():
+    return {
+        'request_upload_url': {
+            'rel': 'file',
+            'href': url_for('controller.request_upload_url', _external=True)
+        }
+    }
