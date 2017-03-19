@@ -5,6 +5,7 @@ uploads:
 server:
     host: {{ getv "/app/piggy/host" "0.0.0.0" }}
     port: {{ getv "/app/piggy/port" "5000" }}
+    name: {{ getv "/app/piggy/name" "localhost" }}
 redis:
     host: {{ getv "/app/redis/host" "user_db" }}
     port: {{ getv "/app/redis/port" "6379" }}
