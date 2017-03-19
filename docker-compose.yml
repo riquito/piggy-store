@@ -27,7 +27,7 @@ services:
         volumes:
             - ./var/minio/config:/root/.minio
             - ./var/minio/volumes:/export
-        entrypoint: minio server var/minio/volumes/hd1 var/minio/volumes/hd2 var/minio/volumes/hd3 var/minio/volumes/hd4
+        entrypoint: minio server /export/volumes/hd1 /export/volumes/hd2 /export/volumes/hd3 /export/volumes/hd4
         expose:
             - "9000"
         ports:
