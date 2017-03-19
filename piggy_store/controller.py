@@ -23,7 +23,7 @@ def add_preflight_request_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, POST, PUT, DELETE'
     return response
 
-@bp.route('/user/', methods=['GET'])
+@bp.route('/files/', methods=['GET'])
 @as_json
 def list_user_files():
     unsafe_payload = request.get_json() or {}
