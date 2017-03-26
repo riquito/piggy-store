@@ -35,7 +35,7 @@ class S3Storage(Storage):
         return '{}/{}'.format(self.user_dir, filename)
 
     def _get_basename(self, object_name):
-        return object_name.lstrip(self.user_dir + '/')
+        return object_name[len(self.user_dir + '/'):]
 
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(
