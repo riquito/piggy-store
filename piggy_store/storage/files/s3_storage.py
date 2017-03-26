@@ -83,9 +83,9 @@ class S3Storage(Storage):
                 url = self._get_temporary_url(obj.object_name)
             )
 
-    def get_files_list(self):
+    def get_files_list(self, prefix=''):
         # XXX self.client list may fail, as list_objects and temprary url
-        for obj in self.client.list_objects_v2(self.bucket, self.user_dir, recursive=True):
+        for obj in self.client.list_objects_v2(self.bucket, self.user_dir + '/' + prefix, recursive=True):
             if not obj.etag:
                 # e.g. minio without 'erasure'
                 obj.etag = self.client.stat_object(self.bucket, obj.object_name).etag
