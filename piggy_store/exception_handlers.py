@@ -9,10 +9,15 @@ from piggy_store.exceptions import (
     ChallengeMismatchError
 )
 
+from piggy_store.controller import hateoas_new_user
+
 logger = logging.getLogger('errors')
 
-def handle_not_found_error(e):
-    return make_error_response(404, e.code, e.message)
+def handle_unhautorized_errors(e):
+    return make_error_response(401, e.code, e.message, links=hateoas_new_user())
+
+def handle_forbidden_errors(e):
+    return make_error_response(403, e.code, e.message)
 
 def handle_piggy_store_errors(e):
     return make_error_response(409, e.code, e.message)
@@ -49,9 +54,13 @@ def make_error_response(status, subcode, message, links=None):
 def register_default_exceptions(app):
     app.register_error_handler(Exception, on_error)
 
-    # 404s
-    for exc_class in (UserDoesNotExistError, ChallengeMismatchError):
-        app.register_error_handler(exc_class, handle_not_found_error)
+    # 401s
+    for exc_class in (UserDoesNotExistError, ):
+        app.register_error_handler(exc_class, handle_unhautorized_errors)
+
+    # 403s
+    for exc_class in (ChallengeMismatchError, ):
+        app.register_error_handler(exc_class, handle_forbidden_errors)
 
     # 409, generic error
     for exc_class in (PiggyStoreError, ):

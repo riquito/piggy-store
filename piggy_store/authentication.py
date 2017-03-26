@@ -13,7 +13,7 @@ class Token:
     def __init__(self, username):
         self.username = username
 
-def assert_user_challenge_match(user, challenge):
+def assert_user_challenge_match(user, answer, challenge_filename):
     if not compare_digest(user.challenge, challenge):
         raise ChallengeMismatchError()
 

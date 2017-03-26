@@ -62,3 +62,17 @@ class FileDoesNotExistError(PiggyStoreError):
     CODE = 1010
     MESSAGE = 'A file with that name does not exist'
 
+class FieldLengthError(PiggyStoreError):
+    CODE = 1011
+    MESSAGE = 'Expected {} to be {} characters long'
+
+    def __init__(self, field_name, length):
+        super().__init__(self.CODE, self.MESSAGE.format(field_name, length))
+
+class FieldHexError(PiggyStoreError):
+    CODE = 1012
+    MESSAGE = 'This field is not in hex format: {}'
+
+    def __init__(self, field_name):
+        super().__init__(self.CODE, self.MESSAGE.format(field_name))
+
