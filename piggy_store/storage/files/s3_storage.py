@@ -116,3 +116,11 @@ class S3Storage(Storage):
             self._get_object_name(filename)
         )
 
+    def get_file_content(self, filename):
+        data = self.client.get_object(self.bucket, self._get_object_name(filename))
+        content = BytesIO()
+        for d in data.stream(32*1024):
+            content.write(d)
+        content.seek(0)
+        return content.read()
+
