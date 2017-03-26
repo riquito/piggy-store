@@ -30,14 +30,21 @@ def on_error(e):
     return make_error_response(500, 500, 'Internal Server Error')
 
 @as_json
-def make_error_response(status, subcode, message):
-    return {
+def make_error_response(status, subcode, message, links=None):
+    json_content = {
         'error': {
             'code': subcode,
             'message': message
         },
         'status': status
-    }, status
+    }
+
+    if links:
+        json_content['links'] = {
+            **links
+        }
+
+    return json_content, status
 
 def register_default_exceptions(app):
     app.register_error_handler(Exception, on_error)
