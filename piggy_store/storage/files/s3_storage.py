@@ -18,18 +18,13 @@ class S3Storage(Storage):
         self.bucket = options['bucket']
 
     def init(self):
-        try:
-            self.client = Minio(
-                self.opts['host'],
-                access_key = self.opts['access_key'],
-                secret_key = self.opts['secret_key'],
-                secure = self.opts['secure'],
-                region = self.opts['region']
-            )
-            self.client.make_bucket(self.opts['bucket'])
-        except ResponseError as e:
-            if e.code != 'BucketAlreadyOwnedByYou':
-                raise e
+        self.client = Minio(
+            self.opts['host'],
+            access_key = self.opts['access_key'],
+            secret_key = self.opts['secret_key'],
+            secure = self.opts['secure'],
+            region = self.opts['region']
+        )
 
     def _get_object_name(self, filename):
         return '{}/{}'.format(self.user_dir, filename)
