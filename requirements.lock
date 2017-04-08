@@ -9,8 +9,10 @@ Jinja2==2.9.5
 MarkupSafe==0.23
 minio==2.1.0
 packaging==16.8
+py==1.4.33
 PyJWT==1.4.2
 pyparsing==2.1.10
+pytest==3.0.7
 pytz==2016.10
 PyYAML==3.12
 redis==2.10.5
