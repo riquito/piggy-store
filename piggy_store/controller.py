@@ -17,14 +17,6 @@ from piggy_store.exceptions import UserExistsError, FileDoesNotExistError, Chall
 
 bp = blueprint = Blueprint('controller', __name__)
 
-@bp.after_request
-def add_preflight_request_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Max-Age'] = '86400'
-    response.headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, POST, PUT, DELETE'
-    return response
-
 @bp.route('/', methods=['GET'])
 @as_json
 def root():
