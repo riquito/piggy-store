@@ -89,7 +89,7 @@ def _validate_is_string(field_name, wannabetext):
         raise FieldTypeError(field_name, 'string')
 
 def _validate_username_format(username):
-    if not re.match('^[a-zA-Z0-9][a-zA-Z0-9_-]+$', username):
+    if not re.match('^[a-zA-Z0-9][a-zA-Z0-9_-]*$', username):
         raise UsernameError()
 
 def _validate_is_not_empty(field_name, text):
