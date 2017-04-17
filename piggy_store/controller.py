@@ -110,10 +110,6 @@ def auth_user_request_challenge():
         json_content['content'] = {
             'challenge': file_storage.get_file_content(challenge_file.filename).decode('utf-8')
         }
-        json_content['links']['challenge'] = {
-            'rel': 'file',
-            'href': challenge_file.url
-        }
 
     return json_content, status
 
