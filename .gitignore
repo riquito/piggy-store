@@ -6,3 +6,4 @@ config.yml
 *.pwd
 *.pwi
 .tox
+.coverage

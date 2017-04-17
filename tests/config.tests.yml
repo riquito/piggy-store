@@ -1,5 +1,7 @@
 debug: true
 secret: not-so-secret-test-secret
+sentry:
+    dsn: ''
 uploads:
     max_content_length: 1M
 server:
