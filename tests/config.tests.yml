@@ -1,0 +1,25 @@
+debug: true
+secret: not-so-secret-test-secret
+uploads:
+    max_content_length: 1M
+server:
+    host: '0.0.0.0'
+    port: 5000
+    name: localhost
+redis:
+    host: localhost
+    port: 6379
+    database: 0
+storage:
+    users: redis
+    files: s3
+s3:
+    host: localhost:9000
+    region: us-east-1
+    bucket: bucket-test
+    secure: false
+    access_key: test_s3_access_key
+    secret_key: test_s3_secret_key
+files:
+    download_url_expire_after: 5m
+

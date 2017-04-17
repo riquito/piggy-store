@@ -5,3 +5,4 @@ config.yml
 *.hwm
 *.pwd
 *.pwi
+.tox

@@ -49,3 +49,23 @@ Run the project
 docker-compose run
 ```
 
+Run tests
+---------
+
+You need to run minio and redis with test configurations
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up s3_like user_db
+```
+
+Then just run `tox`
+
+```
+tox
+```
+
+If a test fails and you want a more verbose output, you could run something like
+
+```
+tox -- -s tests/test_app.py::PiggyStoreTestCase --showlocals -vv
+```
