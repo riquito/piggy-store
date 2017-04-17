@@ -9,6 +9,7 @@ keys = [
     "/app/piggy/port",
     "/app/piggy/name",
     "/app/piggy/secret",
+    "/app/piggy/sentrydsn",
     "/app/s3/host",
     "/app/s3/region",
     "/app/s3/bucket",

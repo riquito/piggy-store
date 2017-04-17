@@ -1,5 +1,8 @@
 debug: false
 secret: {{ getv "/app/piggy/secret" "not-so-secret" }}
+sentry:
+    dsn: {{ getv "/app/piggy/sentrydsn" "" }}
+    include_paths: ['piggy_store']
 uploads:
     max_content_length: 1M
 server:
