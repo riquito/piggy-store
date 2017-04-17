@@ -22,7 +22,7 @@ bp = blueprint = Blueprint('controller', __name__)
 def root():
     return {
         'links': {
-            **hateoas_auth(),
+            **hateoas_auth_user_request_challenge(),
             **hateoas_new_user()
         }
     }
@@ -169,6 +169,14 @@ def request_upload_url():
                 'rel': 'file',
                 'href': file_storage.get_presigned_upload_url(payload['filename'])
             }
+        }
+    }
+
+def hateoas_auth_user_request_challenge():
+    return {
+        'request_auth_challenge': {
+            'rel': 'user',
+            'href': url_for('controller.auth_user_answer_challenge', _external=True)
         }
     }
 
