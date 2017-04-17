@@ -10,7 +10,7 @@ from piggy_store.exceptions import (
 )
 
 def new_user_validator(payload):
-    _validate_has_attrs(payload, ['username', 'challenge'])
+    _validate_has_attrs(payload, ['username', 'challenge', 'answer'])
     _validate_is_string('username', payload['username'])
     _validate_is_string('challenge', payload['challenge'])
     _validate_is_string('answer', payload['answer'])
