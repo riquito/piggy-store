@@ -10,6 +10,12 @@ Install
 pip install -r requirements.lock
 ```
 
+If you don't have uwsgi installed you may want to add it
+
+```
+pip install -r requirements.lock -r requirements.uwsgi.lock
+```
+
 Run
 ---
 
