@@ -9,14 +9,14 @@ server:
     port: 5000
     name: localhost
 redis:
-    host: localhost
+    host: user_db
     port: 6379
     database: 0
 storage:
     users: redis
     files: s3
 s3:
-    host: localhost:9000
+    host: s3_like.com:9000
     region: us-east-1
     bucket: bucket-test
     secure: false
