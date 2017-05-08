@@ -11,7 +11,7 @@ before_install:
     - ./build-docker-images.sh
     - docker images
     - docker ps -a
-    - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up s3_like user_db
+    - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up -d s3_like user_db
 install: true
 script:
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml run --no-deps --rm web
