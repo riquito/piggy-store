@@ -3,6 +3,8 @@ Piggy-Store
 
 Store files easily
 
+[![Build Status](https://api.travis-ci.org/riquito/piggy-store.svg?branch=master)](https://travis-ci.org/riquito/piggy-store)
+
 Install
 -------
 
