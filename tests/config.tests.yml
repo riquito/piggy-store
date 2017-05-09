@@ -16,7 +16,7 @@ storage:
     users: redis
     files: s3
 s3:
-    host: s3_like.com:9000
+    host: s3like.com:9000
     region: us-east-1
     bucket: bucket-test
     secure: false
