@@ -6,4 +6,4 @@ redis==2.10.5
 minio==2.1.0
 pytest==3.0.7
 tox==2.7.0
-raven==6.0.0 [flask]
+raven[flask]==6.0.0
