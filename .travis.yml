@@ -11,7 +11,10 @@ before_install:
     - ./build-docker-images.sh
     - docker images
     - docker ps -a
+    - pip3 install python-coveralls
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up -d s3_like user_db
 install: true
 script:
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml run --no-deps --rm web
+after_success:
+    - coveralls
