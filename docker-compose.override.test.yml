@@ -12,10 +12,14 @@ services:
             MINIO_SECRET_KEY: test_s3_secret_key
     web:
         image: riquito/piggy-store-alpine
-        entrypoint: /usr/bin/tox
+        entrypoint: /usr/bin/tox -e py3-cov
         environment:
             APP_S3_SECURE: 'false'
             APP_S3_KEY_ACCESS: test_s3_access_key
             APP_S3_KEY_SECRET: test_s3_secret_key
             APP_PIGGY_HOST: '0.0.0.0'
             APP_PIGGY_PORT: '5000'
+            TRAVIS:
+            TRAVIS_JOB_ID:
+            TRAVIS_BRANCH:
+
