@@ -1,0 +1,18 @@
+sudo: required
+cache: pip
+language: python
+python:
+    - '3.6'
+services:
+    - docker
+before_install:
+    - wget -O packer.zip https://releases.hashicorp.com/packer/1.0.0/packer_1.0.0_linux_amd64.zip
+    - unzip packer.zip && sudo mv packer /usr/local/bin/packer.io && rm packer.zip
+    - ./build-docker-images.sh
+    - docker images
+    - docker ps -a
+    - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up -d s3_like user_db
+install: true
+script:
+    - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml run --no-deps web
+

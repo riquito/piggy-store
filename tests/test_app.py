@@ -346,7 +346,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             'links': {
                 'upload_url': {
                     'rel': 'file',
-                    'href': 'http://localhost:9000/bucket-test/users/foo/default-filename'
+                    'href': 'http://s3like.com:9000/bucket-test/users/foo/default-filename'
                 }
             }
         }
@@ -400,7 +400,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://localhost:9000/bucket-test/users/foo/file1'
+                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file1'
                         },
                         'delete': {
                             'rel': 'file',
@@ -411,14 +411,14 @@ class PiggyStoreTestCase(unittest.TestCase):
                         'checksum': '9297ab3fbd56b42f6566284119238125',
                         'filename': 'file1',
                         'size': 9,
-                        'url': 'http://localhost:9000/bucket-test/users/foo/file1'
+                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file1'
                     }
                 },
                 {
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://localhost:9000/bucket-test/users/foo/file2'
+                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file2'
                         },
                         'delete': {
                             'rel': 'file',
@@ -429,7 +429,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                         'checksum': '6685cd62b95f2c58818cb20e7292168b',
                         'filename': 'file2',
                         'size': 9,
-                        'url': 'http://localhost:9000/bucket-test/users/foo/file2'
+                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file2'
                     }
                 }
             ]
@@ -468,18 +468,18 @@ class PiggyStoreTestCase(unittest.TestCase):
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://localhost:9000/bucket-test/users/foo/file2'
+                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file2'
                         },
                         'delete': {
-                            'rel': 'file',
-                            'href': 'http://localhost:5000/file/delete'
+                                'rel': 'file',
+                                'href': 'http://localhost:5000/file/delete'
                         }
                     },
                     'content': {
                         'checksum': '6685cd62b95f2c58818cb20e7292168b',
                         'filename': 'file2',
                         'size': 9,
-                        'url': 'http://localhost:9000/bucket-test/users/foo/file2'
+                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file2'
                     }
                 }
             ]
