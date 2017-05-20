@@ -4,7 +4,6 @@ import jwt
 
 from piggy_store.config import config
 from piggy_store.exceptions import (
-    ChallengeMismatchError,
     TokenExpiredError,
     TokenInvalidError
 )
@@ -12,10 +11,6 @@ from piggy_store.exceptions import (
 class Token:
     def __init__(self, username):
         self.username = username
-
-def assert_user_challenge_match(user, answer, challenge_filename):
-    if not compare_digest(user.challenge, challenge):
-        raise ChallengeMismatchError()
 
 def generate_auth_token(user):
     exp_after_n_hours = 1
