@@ -2,6 +2,8 @@ import yaml
 import re
 from datetime import timedelta
 
+class ConfigError(Exception): pass
+
 config = {}
 
 def _size_from_human_to_bytes(humansize):
@@ -40,7 +42,7 @@ def load(config_path):
     global config
 
     if config:
-        raise Error('Loading configuration twice may lead to unexpected behaviour')
+        raise ConfigError('Loading configuration twice may lead to unexpected behaviour')
 
     with open(config_path) as fp:
         config.update(yaml.load(fp))
