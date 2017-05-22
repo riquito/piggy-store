@@ -8,20 +8,21 @@ server:
     host: '0.0.0.0'
     port: 5000
     name: localhost
-redis:
-    host: user_db
-    port: 6379
-    database: 0
 storage:
-    users: redis
-    files: s3
-s3:
-    host: s3like.com:9000
-    region: us-east-1
-    bucket: bucket-test
-    secure: false
-    access_key: test_s3_access_key
-    secret_key: test_s3_secret_key
-files:
-    download_url_expire_after: 5m
+    users:
+        module: piggy_store.storage.users.redis_storage
+        params:
+            host: user_db
+            port: 6379
+            database: 0
+    files:
+        module: piggy_store.storage.files.s3_storage
+        params:
+            host: s3like.com:9000
+            region: us-east-1
+            bucket: bucket-test
+            secure: false
+            access_key: test_s3_access_key
+            secret_key: test_s3_secret_key
+            download_url_expire_after: 5m
 

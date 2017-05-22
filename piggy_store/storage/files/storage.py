@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 class Storage(metaclass=ABCMeta):
-    def init(self):
+    def init(self, user_dir, options):
         pass
 
     @abstractmethod

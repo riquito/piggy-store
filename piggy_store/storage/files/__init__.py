@@ -1,18 +1,14 @@
-from piggy_store.storage.files.file_entity import FileDTO
+from importlib import import_module
 from piggy_store.config import config
+from piggy_store.storage.files.file_entity import FileDTO
 
-if config['storage']['files'] == 's3':
-    from piggy_store.storage.files.s3_storage import S3Storage
-    def access_file_storage(options):
-        if options['user_dir'] != 'admin$':
-            options['user_dir'] = 'users/' + options['user_dir']
-        storage = S3Storage(dict(
-            url_expire_after = config['files']['download_url_expire_after'],
-            **config['s3'],
-            **options
-        ))
-        storage.init()
-        return storage
-else:
-    raise NotImplementedError('No such file storage: ' + config['storage']['files'])
+def access_file_storage(user_dir):
+    file_storage_module = import_module(config['storage']['files']['module'])
 
+    if user_dir != 'admin$':
+        user_dir = 'users/' + user_dir
+
+    storage = file_storage_module.Storage(user_dir, config['storage']['files']['params'])
+    storage.init()
+
+    return storage

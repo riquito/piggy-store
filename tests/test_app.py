@@ -1,8 +1,4 @@
-# load the config before doing anything else
 import os
-from piggy_store.config import load as load_config
-config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.tests.yml')
-config = load_config(config_path)
 
 import unittest
 from unittest.mock import patch
@@ -18,6 +14,12 @@ import redis
 import jwt
 
 from piggy_store.app import create_app
+
+from piggy_store.config import config, load as load_config
+
+if not config:
+    config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.tests.yml')
+    config = load_config(config_path)
 
 FOO_USERNAME = 'foo'
 FOO_ENC_CHALLENGE = 'assume I\'m an encrypted blob'
@@ -105,17 +107,17 @@ class PiggyStoreTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._miniocli = Minio(
-            config['s3']['host'],
-            access_key = config['s3']['access_key'],
-            secret_key = config['s3']['secret_key'],
-            secure = config['s3']['secure'],
-            region = config['s3']['region']
+            config['storage']['files']['params']['host'],
+            access_key = config['storage']['files']['params']['access_key'],
+            secret_key = config['storage']['files']['params']['secret_key'],
+            secure = config['storage']['files']['params']['secure'],
+            region = config['storage']['files']['params']['region']
         )
 
         cls._rediscli = redis.StrictRedis(
-            host = config['redis']['host'],
-            port = config['redis']['port'],
-            db = config['redis']['database'],
+            host = config['storage']['users']['params']['host'],
+            port = config['storage']['users']['params']['port'],
+            db = config['storage']['users']['params']['database'],
             decode_responses = True
         )
 
@@ -123,7 +125,7 @@ class PiggyStoreTestCase(unittest.TestCase):
         self.cli = Navigator(create_app(config).test_client())
 
         try:
-            self.__class__._miniocli.make_bucket(config['s3']['bucket'])
+            self.__class__._miniocli.make_bucket(config['storage']['files']['params']['bucket'])
         except ResponseError as e:
             if e.code != 'BucketAlreadyOwnedByYou':
                 raise e
