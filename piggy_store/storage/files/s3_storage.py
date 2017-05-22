@@ -6,16 +6,14 @@ from minio.error import ResponseError
 
 from piggy_store.exceptions import FileExistsError, FileDoesNotExistError
 from piggy_store.storage.files.file_entity import FileDTO
-from piggy_store.storage.files.storage import Storage
-from piggy_store.helper import hash_checksum
-from piggy_store.config import config
+from piggy_store.storage.files.storage import Storage as BaseStorage
 
-class S3Storage(Storage):
-    def __init__(self, options):
-        self.opts = options
+class Storage(BaseStorage):
+    def __init__(self, user_dir, options):
         self.client = None
-        self.user_dir = options['user_dir']
+        self.user_dir = user_dir
         self.bucket = options['bucket']
+        self.opts = options
 
     def init(self):
         self.client = Minio(
@@ -36,7 +34,7 @@ class S3Storage(Storage):
         return self.client.presigned_get_object(
             self.bucket,
             object_name,
-            self.opts['url_expire_after']
+            self.opts['download_url_expire_after']
         )
 
     def add_file(self, f):

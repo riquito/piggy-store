@@ -6,17 +6,20 @@ server:
     host: {{ default .Env.PIGGYSTORE__SERVER_HOST "127.0.0.1" }}
     port: {{ default .Env.PIGGYSTORE__SERVER_PORT 5000 }}
     name: {{ default .Env.PIGGYSTORE__SERVER_NAME "localhost" }}
-redis:
-    host: localhost
-    port: 6379
-    database: 0
-s3:
-    host: s3.amazonaws.com
-    region: us-east-1
-    bucket: ~
-    secure: true
-    access_key: ~
-    secret_key: ~
-files:
-    download_url_expire_after: 5m
+storage:
+    users:
+        module: piggy_store.storage.users.redis_storage
+        params:
+            host: localhost
+            port: 6379
+            database: 0
+    files:
+        module: piggy_store.storage.files.s3_storage
+        params:
+            host: s3.amazonaws.com
+            region: us-east-1
+            bucket: ~
+            secure: true
+            access_key: ~
+            secret_key: ~
 

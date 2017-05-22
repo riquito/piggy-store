@@ -1,9 +1,8 @@
+from importlib import import_module
+
 from piggy_store.storage.users.user_entity import User
 from piggy_store.config import config
 
-if config['storage']['users'] == 'redis':
-    from piggy_store.storage.users.redis_storage import RedisStorage
-    user_storage = RedisStorage()
-else:
-    raise NotImplementedError('No such user storage: ' + config['storage']['users'])
-
+def get_user_storage():
+    user_storage_module = import_module(config['storage']['users']['module'])
+    return user_storage_module.Storage(config['storage']['users']['params'])

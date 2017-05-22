@@ -49,18 +49,24 @@ def load(config_path):
         config['uploads']['max_content_length']
     )
 
-    config['files']['download_url_expire_after'] = _time_delta_from_human_to_timedelta(
-        config['files']['download_url_expire_after']
-    )
-
     if not config.get('storage'):
         config['storage'] = {}
 
-    if not config['storage'].get('users'):
-        config['storage']['users'] = 'redis'
+    storage_users = config['storage'].setdefault('users', {})
+    if not storage_users.get('module'):
+        storage_users['module'] = 'piggy_store.storage.users.redis_storage'
 
-    if not config['storage'].get('files'):
-        config['storage']['files'] = 's3'
+
+    storage_files = config['storage'].setdefault('files', {})
+    if not storage_files.get('files'):
+        storage_files['module'] = 'piggy_store.storage.files.s3_storage'
+
+    if not storage_users.get('params'):
+        storage_users['params'] = {}
+
+    config['storage']['files']['params']['download_url_expire_after'] = _time_delta_from_human_to_timedelta(
+        config['storage']['files']['params'].get('download_url_expire_after', '1 day')
+    )
 
     return config
 
