@@ -106,3 +106,23 @@ def test_config_keys_with_defaults(config_mod, defaulted_key):
     for key in key_parts[1:]:
         assert key in v
         v = v[key]
+
+@pytest.mark.parametrize('humansize,expected', [
+    ('2', 2048),
+    ('2b', 2),
+    ('2B', 2),
+    ('2 b', 2),
+    ('2 B', 2),
+    ('2 bytes', 2),
+    ('2 BYTES', 2),
+    ('2kb', 2 * 1024),
+    ('2KB', 2 * 1024),
+    ('2 kb', 2 * 1024),
+    ('2 KB', 2 * 1024),
+    ('2mb', 2 * 1024 * 1024),
+    ('2MB', 2 * 1024 * 1024),
+    ('2 mb', 2 * 1024 * 1024),
+    ('2 MB', 2 * 1024 * 1024),
+])
+def test_size_from_human_to_bytes(config_mod, humansize, expected):
+    assert expected == config_mod._size_from_human_to_bytes(humansize)

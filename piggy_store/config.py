@@ -15,7 +15,7 @@ def _size_from_human_to_bytes(humansize):
             'B': 1,
             'BYTES': 1,
             'KB': 1024
-        }[match.group(2)]
+        }[match.group(2).upper()]
     else:
         # default to kilobytes
         return int(humansize) * 1024
