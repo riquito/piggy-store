@@ -47,28 +47,40 @@ def load(config_path):
     with open(config_path) as fp:
         config.update(yaml.load(fp))
 
+    return _sanitize_config(config)
+
+def _sanitize_config(config):
+    config.setdefault('debug', False)
+    config.setdefault('uploads', {})
+    config['uploads'].setdefault('max_content_length', '1M')
+
+    try:
+        config['debug']
+        config['secret']
+        config['uploads']
+        config['uploads']['max_content_length']
+        config['server']
+        config['server']['host']
+        config['server']['port']
+        config['server']['name']
+        config['sentry']
+        config['sentry']['dsn']
+        config['storage']
+        config['storage']['users']
+        config['storage']['users']['module']
+        config['storage']['users']['params']
+        config['storage']['files']
+        config['storage']['files']['module']
+        config['storage']['files']['params']
+    except KeyError as e:
+        raise ConfigError('A config key is missing: {}'.format(e.args[0]))
+
     config['uploads']['max_content_length'] = _size_from_human_to_bytes(
         config['uploads']['max_content_length']
     )
-
-    if not config.get('storage'):
-        config['storage'] = {}
-
-    storage_users = config['storage'].setdefault('users', {})
-    if not storage_users.get('module'):
-        storage_users['module'] = 'piggy_store.storage.users.redis_storage'
-
-
-    storage_files = config['storage'].setdefault('files', {})
-    if not storage_files.get('files'):
-        storage_files['module'] = 'piggy_store.storage.files.s3_storage'
-
-    if not storage_users.get('params'):
-        storage_users['params'] = {}
 
     config['storage']['files']['params']['download_url_expire_after'] = _time_delta_from_human_to_timedelta(
         config['storage']['files']['params'].get('download_url_expire_after', '1 day')
     )
 
     return config
-
