@@ -1,5 +1,6 @@
 import os
 from piggy_store.app import create_app
+from piggy_store.exceptions import PiggyStoreError
 
 import pytest
 import json
@@ -93,3 +94,9 @@ def test_unregistered_httpexception(mock_logger, content_type):
     }
 
     mock_logger.exception.assert_called_with(exc)
+
+def test_piggystore_exception_string_format():
+    assert '0 Internal Error' == str(PiggyStoreError())
+    assert '1 Internal Error' == str(PiggyStoreError(code=1))
+    assert '0 Such error' == str(PiggyStoreError(message='Such error'))
+    assert '42 Meaningful error' == str(PiggyStoreError(42, 'Meaningful error'))
