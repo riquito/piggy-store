@@ -126,3 +126,17 @@ def test_config_keys_with_defaults(config_mod, defaulted_key):
 ])
 def test_size_from_human_to_bytes(config_mod, humansize, expected):
     assert expected == config_mod._size_from_human_to_bytes(humansize)
+
+@pytest.mark.parametrize('humandelta,expected', [
+    ('2', timedelta(minutes=2)),
+    ('1 day', timedelta(days=1)),
+    ('2 days', timedelta(days=2)),
+    ('1 hour', timedelta(hours=1)),
+    ('2 hours', timedelta(hours=2)),
+    ('1 minute', timedelta(minutes=1)),
+    ('2 minutes', timedelta(minutes=2)),
+    ('1 second', timedelta(seconds=1)),
+    ('2 seconds', timedelta(seconds=2)),
+])
+def test_time_delta_from_human_to_timedelta(config_mod, humandelta, expected):
+    assert expected == config_mod._time_delta_from_human_to_timedelta(humandelta)
