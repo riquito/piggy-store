@@ -24,18 +24,6 @@ class FileDTO:
             'url': self.url
         }
 
-    def __eq__(self, f):
-        return self.__check_equality(f)
-
-    def __ne__(self, f):
-        return not self.__check_equality(f)
-
-    def __check_equality(self, f):
-        if not isinstance(f, FileDTO):
-            return False
-        else:
-            return self.checksum == f.checksum and self.filename == f.filename
-
     def __repr__(self):
         return '<FileDTO filename:{} checksum:{}>'.format(self.filename, self.checksum)
 

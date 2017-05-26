@@ -10,7 +10,7 @@ from piggy_store.validators import (
     request_upload_url_validator,
     file_delete_validator
 )
-from piggy_store.authentication import generate_auth_token, assert_user_challenge_match, decode_auth_token
+from piggy_store.authentication import generate_auth_token, decode_auth_token
 from piggy_store.storage.files import access_file_storage
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.exceptions import UserExistsError, FileDoesNotExistError, ChallengeMismatchError

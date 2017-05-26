@@ -510,6 +510,128 @@ class PiggyStoreTestCase(unittest.TestCase):
                 }
             }
 
+    def test_token_malformed_missing_key(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        decoded_token = jwt.decode(token, config['secret'], algorithms=['HS256'])
+        malformed_token = jwt.encode({}, config['secret'], algorithm='HS256')
+
+        r = self.cli.list_files(malformed_token)
+        data = r.data
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1008,
+                'message': 'The token is not valid'
+            }
+        }
+
+    def test_token_malformed_not_jwt(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        malformed_token = 'bogus token'
+
+        r = self.cli.list_files(malformed_token)
+        data = r.data
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1008,
+                'message': 'The token is not valid'
+            }
+        }
+
+    def test_create_new_user_validation_field_username_is_not_a_string(self):
+        username = 42
+        r = self.cli.create_new_user(username, FOO_ENC_CHALLENGE, FOO_ANSWER)
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1003,
+                'message': 'Expected username to be a string'
+            }
+        }
+
+    def test_create_new_user_validation_field_username_cannot_be_empty(self):
+        username = ''
+        r = self.cli.create_new_user(username, FOO_ENC_CHALLENGE, FOO_ANSWER)
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1004,
+                'message': 'Expected username to not be empty'
+            }
+        }
+
+    def test_create_new_user_validation_field_username_is_not_valid(self):
+        for username in ('_foo', '-foo', '$', 'à'):
+            r = self.cli.create_new_user(username, FOO_ENC_CHALLENGE, FOO_ANSWER)
+            assert r.status_code == 409
+            decoded_data = json.loads(r.data.decode('utf-8'))
+
+            assert decoded_data == \
+            {
+                'status': 409,
+                'error': {
+                    'code': 1001,
+                    'message': 'Username is not valid'
+                }
+            }
+
+    def test_create_new_user_validation_field_answer_must_be_32_bytes_long(self):
+        for answer in ('a', 'a' * 33):
+            r = self.cli.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, answer)
+            assert r.status_code == 409
+            decoded_data = json.loads(r.data.decode('utf-8'))
+
+            assert decoded_data == \
+            {
+                'status': 409,
+                'error': {
+                    'code': 1011,
+                    'message': 'Expected answer to be 32 characters long'
+                }
+            }
+
+        r = self.cli.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, 'a' * 32)
+        assert r.status_code == 200
+
+    def test_create_new_user_validation_field_answer_must_be_in_hex_format(self):
+        answer = 'g' * 32
+        r = self.cli.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, answer)
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1012,
+                'message': 'This field is not in hex format: answer'
+            }
+        }
+
 
 
 if __name__ == '__main__':

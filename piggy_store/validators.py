@@ -81,7 +81,7 @@ def file_delete_validator(payload):
 
 def _validate_has_attrs(data, attrs):
     for attr_name in attrs:
-        if not data.get(attr_name):
+        if data.get(attr_name) is None:
             raise FieldRequiredError(attr_name)
 
 def _validate_is_string(field_name, wannabetext):

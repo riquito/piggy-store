@@ -1,3 +1,15 @@
 [run]
 branch = True
 omit = tests/*
+[report]
+fail_under = 90
+exclude_lines =
+    # Don't complain about missing debug-only code:
+    def __repr__
+    pass
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if __name__ == .__main__.:

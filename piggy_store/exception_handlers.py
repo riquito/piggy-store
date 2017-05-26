@@ -26,7 +26,7 @@ def on_flask_http_exception(e):
     if isinstance(e, werkzeug.exceptions.HTTPException):
         return make_error_response(e.code, e.code, e.name)
     else:
-        # hbpens when there was an error handling the exception
+        # XXX can't remember how to reproduce it, I swear it can happen
         logger.exception(e)
         return make_error_response(500, 500, 'Internal Server Error')
 
