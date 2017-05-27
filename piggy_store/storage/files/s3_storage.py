@@ -25,10 +25,10 @@ class Storage(BaseStorage):
         )
 
     def _get_object_name(self, filename):
-        return '{}/{}'.format(self.user_dir, filename)
+        return '{}{}'.format(self.user_dir, filename)
 
     def _get_basename(self, object_name):
-        return object_name[len(self.user_dir + '/'):]
+        return object_name[len(self.user_dir):]
 
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(
@@ -78,7 +78,7 @@ class Storage(BaseStorage):
 
     def get_files_list(self, prefix=''):
         # XXX self.client list may fail, as list_objects and temprary url
-        for obj in self.client.list_objects_v2(self.bucket, self.user_dir + '/' + prefix, recursive=True):
+        for obj in self.client.list_objects_v2(self.bucket, self.user_dir + prefix, recursive=True):
             if not obj.etag:
                 # e.g. minio without 'erasure'
                 obj.etag = self.client.stat_object(self.bucket, obj.object_name).etag
