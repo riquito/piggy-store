@@ -58,10 +58,6 @@ class FileExistsError(PiggyStoreError):
     CODE = 1009
     MESSAGE = 'A file with that name already exists'
 
-class FileDoesNotExistError(PiggyStoreError):
-    CODE = 1010
-    MESSAGE = 'A file with that name does not exist'
-
 class FieldLengthError(PiggyStoreError):
     CODE = 1011
     MESSAGE = 'Expected {} to be {} characters long'

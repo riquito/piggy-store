@@ -9,10 +9,6 @@ class Storage(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def find_file_by_filename(self, filename):
-        raise NotImplementedError()
-
-    @abstractmethod
     def get_files_list(self):
         raise NotImplementedError()
 

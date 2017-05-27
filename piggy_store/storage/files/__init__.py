@@ -2,13 +2,26 @@ from importlib import import_module
 from piggy_store.config import config
 from piggy_store.storage.files.file_entity import FileDTO
 
-def access_file_storage(user_dir):
+# hereon I write "directory" but I mean "prefix" in an S3 context
+
+ADMIN_DIR = 'admin$' # The $ symbol is not allowed as username, so even if USERS_DIR
+                     # were empty a malicious user could not access that directory
+USERS_DIR = 'users'
+
+def access_user_storage(username):
     file_storage_module = import_module(config['storage']['files']['module'])
 
-    if user_dir != 'admin$':
-        user_dir = 'users/' + user_dir
+    # add a pending / to avoid that a username can be the prefix of another one
+    directory = USERS_DIR + '/' + username + '/'
 
-    storage = file_storage_module.Storage(user_dir, config['storage']['files']['params'])
+    storage = file_storage_module.Storage(directory, config['storage']['files']['params'])
+    storage.init()
+
+    return storage
+
+def access_admin_storage():
+    file_storage_module = import_module(config['storage']['files']['module'])
+    storage = file_storage_module.Storage(ADMIN_DIR, config['storage']['files']['params'])
     storage.init()
 
     return storage
