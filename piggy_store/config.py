@@ -47,9 +47,12 @@ def load(config_path):
     with open(config_path) as fp:
         config.update(yaml.load(fp))
 
-    return _sanitize_config(config)
+    config.update(_sanitize_config(config))
+    return config
 
 def _sanitize_config(config):
+    '''Sanitize in-place a config dictionary'''
+
     config.setdefault('debug', False)
     config.setdefault('uploads', {})
     config['uploads'].setdefault('max_content_length', '1M')
