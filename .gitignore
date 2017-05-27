@@ -7,3 +7,5 @@ config.yml
 *.pwi
 .tox
 .coverage
+.env
+.cache
