@@ -105,9 +105,9 @@ def auth_user_answer_challenge():
     payload = auth_user_answer_challenge_validator(unsafe_payload)
     user_storage = get_user_storage()
     user = user_storage.find_user_by_username(payload['username'])
-    correct_answer = user_storage.get_answer_to_challenge(user)
+    correct_answer = user.answer
 
-    if correct_answer is None or payload['answer'] != correct_answer:
+    if payload['answer'] != correct_answer:
         raise ChallengeMismatchError()
 
     return {

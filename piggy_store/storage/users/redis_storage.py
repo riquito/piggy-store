@@ -68,18 +68,3 @@ class Storage(BaseStorage):
             raise UserDoesNotExistError()
 
         return user
-
-    def get_answer_to_challenge(self, user):
-        answer = None
-
-        # Do we have the user data already cached?
-        data = self.conn.hgetall(user.username)
-        if data:
-            answer = data['answer']
-        else:
-            file_storage = access_admin_storage()
-            challenge_file = self._get_challenge_file(username)
-            if challenge_file:
-                answer = self._get_answer_from_filename(challenge_file.filename)
-
-        return answer
