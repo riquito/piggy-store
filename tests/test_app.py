@@ -325,6 +325,17 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_auth_user_answer_challenge_succeed_if_the_cache_is_cleared_midway(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+
+        # The user's data would be read from the cache. Let's avoid that.
+        assert self._rediscli.hgetall(FOO_USERNAME)['answer']
+        self._rediscli.delete(FOO_USERNAME)
+
+        r = self.cli.answer_auth_challenge(FOO_USERNAME, FOO_ANSWER)
+        assert r.status_code == 200
+
     def test_request_upload_url(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200
