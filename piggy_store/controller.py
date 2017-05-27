@@ -54,7 +54,7 @@ def list_user_files():
 def new_user():
     unsafe_payload = request.get_json() or {}
     payload = new_user_validator(unsafe_payload)
-    user = User(payload['username'], payload['challenge'])
+    user = User(payload['username'], payload['challenge'], payload['answer'])
     get_user_storage().add_user(user)
     file_storage = access_admin_storage()
     filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
@@ -103,13 +103,11 @@ def auth_user_request_challenge():
 def auth_user_answer_challenge():
     unsafe_payload = request.get_json() or {}
     payload = auth_user_answer_challenge_validator(unsafe_payload)
-    user = get_user_storage().find_user_by_username(payload['username'])
-    file_storage = access_admin_storage()
-    filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
+    user_storage = get_user_storage()
+    user = user_storage.find_user_by_username(payload['username'])
+    correct_answer = user_storage.get_answer_to_challenge(user)
 
-    try:
-        file_storage.find_file_by_filename(filename)
-    except FileDoesNotExistError:
+    if correct_answer is None or payload['answer'] != correct_answer:
         raise ChallengeMismatchError()
 
     return {
