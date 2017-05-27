@@ -13,7 +13,7 @@ from piggy_store.validators import (
 from piggy_store.authentication import generate_auth_token, decode_auth_token
 from piggy_store.storage.files import access_admin_storage, access_user_storage
 from piggy_store.storage.files.file_entity import FileDTO
-from piggy_store.exceptions import UserExistsError, FileDoesNotExistError, ChallengeMismatchError
+from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
 
