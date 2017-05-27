@@ -87,32 +87,16 @@ def auth_user_request_challenge():
     unsafe_payload = request.args
     payload = auth_user_request_challenge_validator(unsafe_payload)
     user = get_user_storage().find_user_by_username(payload['username'])
-    file_storage = access_admin_storage()
-    filename_prefix = 'challenge_{}_'.format(user.username)
-    challenge_files = list(file_storage.get_files_list(prefix = filename_prefix))
 
-    status = 200
-
-    if len(challenge_files) > 1:
-        raise Exception('XXX wrong number of challenge files')
-    elif len(challenge_files) == 0:
-        status = 401
-
-    json_content= {
+    return {
+        'content': {
+            'challenge': user.challenge
+        },
         'links': {
             **hateoas_new_user(),
-            **hateoas_auth_user_answer_challenge(),
+            **hateoas_auth_user_answer_challenge()
         }
     }
-    
-    if status == 200:
-        challenge_file = challenge_files[0]
-        json_content['content'] = {
-            'challenge': file_storage.get_file_content(challenge_file.filename).decode('utf-8')
-        }
-
-    return json_content, status
-
 
 @bp.route('/user/auth/answer-challenge', methods=['POST'])
 @as_json
