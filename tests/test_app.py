@@ -78,7 +78,7 @@ class Navigator:
             data = file_content
         )
 
-    def upload_file_to_user_foo(self, token, filename, file_content):
+    def upload_file_to_user(self, token, filename, file_content):
         r = self.request_upload_url(token, filename)
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
@@ -388,8 +388,8 @@ class PiggyStoreTestCase(unittest.TestCase):
         decoded_data = json.loads(r.data.decode('utf-8'))
         token = decoded_data['content']['token']
 
-        self.cli.upload_file_to_user_foo(token, 'file1', b'content 1')
-        self.cli.upload_file_to_user_foo(token, 'file2', b'content 2')
+        self.cli.upload_file_to_user(token, 'file1', b'content 1')
+        self.cli.upload_file_to_user(token, 'file2', b'content 2')
 
         r = self.cli.list_files(token)
         assert r.status_code == 200
@@ -454,8 +454,8 @@ class PiggyStoreTestCase(unittest.TestCase):
         decoded_data = json.loads(r.data.decode('utf-8'))
         token = decoded_data['content']['token']
 
-        self.cli.upload_file_to_user_foo(token, 'file1', b'content 1')
-        self.cli.upload_file_to_user_foo(token, 'file2', b'content 2')
+        self.cli.upload_file_to_user(token, 'file1', b'content 1')
+        self.cli.upload_file_to_user(token, 'file2', b'content 2')
 
         r = self.cli.delete_file(token, 'file1')
         assert r.status_code == 200
