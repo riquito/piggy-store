@@ -544,7 +544,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
-    def test_token_malformed_not_jwt(self):
+    def test_list_files_token_malformed_not_jwt(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
