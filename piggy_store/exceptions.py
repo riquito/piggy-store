@@ -72,3 +72,11 @@ class FieldHexError(PiggyStoreError):
     def __init__(self, field_name):
         super().__init__(self.CODE, self.MESSAGE.format(field_name))
 
+class MultipleFilesRemoveError(PiggyStoreError):
+    CODE = 1013
+    MESSAGE = 'There was an error deleting some files: {}'
+
+    def __init__(self, pairs_file_error):
+        super().__init__(self.CODE, self.MESSAGE.format(
+            ', '.join('%s [%s:%s]' % (error.object_name, error.error_code, error.error_message) for f, error in pairs_file_error)
+        ))

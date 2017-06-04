@@ -101,6 +101,12 @@ class Navigator:
             'filename': filename
         }), content_type='application/json')
 
+    def delete_user(self, token):
+        return self.cli.delete('/user/', data=json.dumps({
+            'jwt': token,
+        }), content_type='application/json')
+
+
 class PiggyStoreTestCase(unittest.TestCase):
     DUMMY_TOKEN = 'a.dummy.token'
 
@@ -643,6 +649,134 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_delete_user_success(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token_foo = decoded_data['content']['token']
+
+        self.cli.upload_file_to_user(token_foo, 'file1', b'content 1')
+        self.cli.upload_file_to_user(token_foo, 'file2', b'content 2')
+
+        # add a user with the same prefix to check that we don't delete it too
+        foobar_username = FOO_USERNAME + 'bar'
+        r = self.cli.create_new_user(foobar_username, FOO_ENC_CHALLENGE, FOO_ANSWER)
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token_foobar = decoded_data['content']['token']
+
+        self.cli.upload_file_to_user(token_foobar, 'file1', b'content 1')
+
+        # remove the user and his content
+        r = self.cli.delete_user(token_foo)
+        assert r.status_code == 200
+        assert json.loads(r.data.decode('utf-8')) == \
+        {
+            "status": 200,
+            "links": {
+                "create_user": {
+                    "href": "http://localhost:5000/user/",
+                    "rel": "user"
+                }
+            }
+        }
+
+        # foobar should stll exist and have his file
+        r = self.cli.list_files(token_foobar)
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        assert 1 == len(decoded_data['content'])
+
+        # foo should not exist anymore
+        r = self.cli.get_auth_challenge(FOO_USERNAME)
+        assert r.status_code == 401
+        assert json.loads(r.data.decode('utf-8')) == \
+        {
+            "status": 401,
+            "error": {
+                "code": 1005,
+                "message": "The user does not exist"
+            },
+            "links": {
+                "create_user": {
+                    "href": "http://localhost:5000/user/",
+                    "rel": "user"
+                }
+            }
+        }
+
+        # overall we should be left with just two files, the challenge
+        # file for foobar and foobar's uploaded file
+        num_files = 0
+        for bucket in self.__class__._miniocli.list_buckets():
+            num_files += len(list(self.__class__._miniocli.list_objects_v2(bucket.name, '', recursive=True)))
+        assert 2 == num_files
+
+        # the old token foo should not be valid anymore
+        r = self.cli.list_files(token_foo)
+        assert r.status_code == 401
+        assert json.loads(r.data.decode('utf-8')) == \
+        {
+            "status": 401,
+            "error": {
+                "code": 1005,
+                "message": "The user does not exist"
+            },
+            "links": {
+                "create_user": {
+                    "href": "http://localhost:5000/user/",
+                    "rel": "user"
+                }
+            }
+        }
+
+    def test_delete_twice_the_user_with_the_same_token(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token_foo = decoded_data['content']['token']
+
+        # remove the user and his content
+        r = self.cli.delete_user(token_foo)
+        assert r.status_code == 200
+
+        # reuse the now obsolete token to try to delete the user again
+        r = self.cli.delete_user(token_foo)
+        assert r.status_code == 401
+        assert json.loads(r.data.decode('utf-8')) == \
+        {
+            "status": 401,
+            "error": {
+                "code": 1005,
+                "message": "The user does not exist"
+            },
+            "links": {
+                "create_user": {
+                    "href": "http://localhost:5000/user/",
+                    "rel": "user"
+                }
+            }
+        }
+
+    def test_delete_user_token_malformed_not_jwt(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token_foo = decoded_data['content']['token']
+
+        malformed_token = 'bogus token'
+        r = self.cli.delete_user(malformed_token)
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1008,
+                'message': 'The token is not valid'
+            }
+        }
 
 
 if __name__ == '__main__':

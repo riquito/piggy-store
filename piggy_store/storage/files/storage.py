@@ -19,3 +19,7 @@ class Storage(metaclass=ABCMeta):
     @abstractmethod
     def remove_by_filename(self, filename):
         raise NotImplementedError
+
+    @abstractmethod
+    def remove_multiple(self, filenames_iterator):
+        raise NotImplementedError

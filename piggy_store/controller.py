@@ -3,6 +3,7 @@ from flask_json import FlaskJSON, as_json
 
 from piggy_store.storage.users import get_user_storage, User
 from piggy_store.validators import (
+    delete_user_validator,
     new_user_validator,
     auth_user_request_challenge_validator,
     auth_user_answer_challenge_validator,
@@ -78,6 +79,20 @@ def new_user():
         'links': {
             **hateoas_list_user_files(),
             **hateoas_request_upload_url()
+        }
+    }
+
+@bp.route('/user/', methods=['DELETE'])
+@as_json
+def delete_user():
+    unsafe_payload = request.get_json() or {}
+    payload = delete_user_validator(unsafe_payload)
+    token = decode_auth_token(payload['jwt'])
+    get_user_storage().remove_user_by_username(token.username)
+
+    return {
+        'links': {
+            **hateoas_new_user()
         }
     }
 
