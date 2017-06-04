@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+
 class Storage(metaclass=ABCMeta):
     @abstractmethod
     def __init__(self, options):

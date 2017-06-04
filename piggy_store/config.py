@@ -2,9 +2,13 @@ import yaml
 import re
 from datetime import timedelta
 
-class ConfigError(Exception): pass
+
+class ConfigError(Exception):
+    pass
+
 
 config = {}
+
 
 def _size_from_human_to_bytes(humansize):
     match = re.match(r'\s*(\d+)\s*(MB|M|B|BYTES|KB)\s*$', humansize, re.I)
@@ -20,6 +24,7 @@ def _size_from_human_to_bytes(humansize):
         # default to kilobytes
         return int(humansize) * 1024
 
+
 def _time_delta_from_human_to_timedelta(humandelta):
     match = re.match(r'\s*(\d+)\s*(d|h|m|s|days?|hours?|minutes?|seconds?)\s*$', humandelta, re.I)
     time_resolution = 'minutes'
@@ -34,7 +39,7 @@ def _time_delta_from_human_to_timedelta(humandelta):
     else:
         value = int(humandelta)
 
-    kwargs = { time_resolution: value }
+    kwargs = {time_resolution: value}
     return timedelta(**kwargs)
 
 
@@ -49,6 +54,7 @@ def load(config_path):
 
     config.update(_sanitize_config(config))
     return config
+
 
 def _sanitize_config(config):
     '''Sanitize in-place a config dictionary'''
