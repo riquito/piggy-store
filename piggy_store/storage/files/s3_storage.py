@@ -4,7 +4,7 @@ from datetime import timedelta
 from minio import Minio
 from minio.error import ResponseError
 
-from piggy_store.exceptions import FileExistsError
+from piggy_store.exceptions import FileExistsError, MultipleFilesRemoveError
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.storage.files.storage import Storage as BaseStorage
 
@@ -90,6 +90,17 @@ class Storage(BaseStorage):
             self.bucket,
             self._get_object_name(filename)
         )
+
+    def remove_multiple(self, files):
+        errors = []
+        for error in self.client.remove_objects(
+            self.bucket,
+            (self._get_object_name(f.filename) for f in files)
+        ):
+            errors.append((f, error))
+
+        if errors:
+            raise MultipleFilesRemoveError(errors)
 
     def get_file_content(self, filename):
         data = self.client.get_object(self.bucket, self._get_object_name(filename))

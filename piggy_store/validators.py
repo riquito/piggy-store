@@ -59,6 +59,14 @@ def list_user_files_validator(payload):
         jwt = payload['jwt']
     )
 
+def delete_user_validator(payload):
+    _validate_has_attrs(payload, ['jwt'])
+    _validate_is_string('jwt', payload['jwt'])
+
+    return dict(
+        jwt = payload['jwt']
+    )
+
 def request_upload_url_validator(payload):
     _validate_has_attrs(payload, ['jwt', 'filename'])
     _validate_is_string('jwt', payload['jwt'])

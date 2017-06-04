@@ -3,14 +3,13 @@ import redis
 from piggy_store.exceptions import UserExistsError, UserDoesNotExistError
 from piggy_store.storage.users.user_entity import User
 from piggy_store.storage.users.storage import Storage as BaseStorage
-from piggy_store.storage.files import access_admin_storage
+from piggy_store.storage.files import access_admin_storage, access_user_storage
 
 class Storage(BaseStorage):
     __instance = None
 
     def __new__(cls, options, **kwargs):
         if not cls.__instance:
-            print('create instance')
             cls.__instance = object.__new__(cls)
             cls.conn = redis.StrictRedis(
                 host = options['host'],
@@ -32,6 +31,12 @@ class Storage(BaseStorage):
                 'challenge': user.challenge,
                 'answer': user.answer
             })
+
+    def delete_user(self, user):
+        if not self.conn.exists(user.username):
+            raise UserDoesNotExistError()
+        else:
+            self.conn.delete(user.username)
 
     def _get_challenge_file(self, username):
         file_storage = access_admin_storage()
@@ -68,3 +73,14 @@ class Storage(BaseStorage):
             raise UserDoesNotExistError()
 
         return user
+
+    def remove_user_by_username(self, username):
+        user = self.find_user_by_username(username)
+        user_file_storage = access_user_storage(user.username)
+        user_file_storage.remove_multiple((user_file_storage.get_files_list()))
+
+        admin_file_storage = access_admin_storage()
+        challenge_file_filename = 'challenge_{}_{}'.format(user.username, user.answer)
+        admin_file_storage.remove_by_filename(challenge_file_filename)
+
+        self.delete_user(user)
