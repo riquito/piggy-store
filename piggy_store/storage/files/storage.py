@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+
 class Storage(metaclass=ABCMeta):
     def init(self, user_dir, options):
         pass

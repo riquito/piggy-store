@@ -8,6 +8,7 @@ from piggy_store.exceptions import FileExistsError, MultipleFilesRemoveError
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.storage.files.storage import Storage as BaseStorage
 
+
 class Storage(BaseStorage):
     def __init__(self, user_dir, options):
         self.client = None
@@ -18,10 +19,10 @@ class Storage(BaseStorage):
     def init(self):
         self.client = Minio(
             self.opts['host'],
-            access_key = self.opts['access_key'],
-            secret_key = self.opts['secret_key'],
-            secure = self.opts['secure'],
-            region = self.opts['region']
+            access_key=self.opts['access_key'],
+            secret_key=self.opts['secret_key'],
+            secure=self.opts['secure'],
+            region=self.opts['region']
         )
 
     def _get_object_name(self, filename):
@@ -53,8 +54,8 @@ class Storage(BaseStorage):
                 raw_file['url'] = url
 
                 return FileDTO(**raw_file)
-            else: 
-                raise e # XXX should I encapsulate the exception in PiggyStoreError?
+            else:
+                raise e  # XXX should I encapsulate the exception in PiggyStoreError?
         else:
             raise FileExistsError()
 
@@ -66,10 +67,10 @@ class Storage(BaseStorage):
                 obj.etag = self.client.stat_object(self.bucket, obj.object_name).etag
 
             yield FileDTO(
-                filename = self._get_basename(obj.object_name),
-                size = obj.size,
-                checksum = obj.etag,
-                url = self._get_temporary_url(obj.object_name)
+                filename=self._get_basename(obj.object_name),
+                size=obj.size,
+                checksum=obj.etag,
+                url=self._get_temporary_url(obj.object_name)
             )
 
     def get_presigned_upload_url(self, filename):
@@ -78,7 +79,7 @@ class Storage(BaseStorage):
             return self.client.presigned_put_object(
                 self.bucket,
                 self._get_object_name(filename),
-                expires = timedelta(days=3)
+                expires=timedelta(days=3)
             )
         # Response error is still possible since internally presigned does get
         # bucket location.
@@ -105,8 +106,7 @@ class Storage(BaseStorage):
     def get_file_content(self, filename):
         data = self.client.get_object(self.bucket, self._get_object_name(filename))
         content = BytesIO()
-        for d in data.stream(32*1024):
+        for d in data.stream(32 * 1024):
             content.write(d)
         content.seek(0)
         return content.read()
-

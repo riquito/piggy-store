@@ -8,9 +8,11 @@ from piggy_store.exceptions import (
     TokenInvalidError
 )
 
+
 class Token:
     def __init__(self, username):
         self.username = username
+
 
 def generate_auth_token(user):
     exp_after_n_hours = 1
@@ -25,6 +27,7 @@ def generate_auth_token(user):
         algorithm='HS256'
     ).decode('utf-8')
 
+
 def decode_auth_token(raw_token):
     try:
         token_payload = jwt.decode(
@@ -34,7 +37,7 @@ def decode_auth_token(raw_token):
         )
 
         return Token(
-            username = token_payload['username']
+            username=token_payload['username']
         )
 
     except jwt.ExpiredSignatureError:

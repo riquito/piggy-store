@@ -1,10 +1,10 @@
 class FileDTO:
     def __init__(self,
-            filename=None,
-            checksum=None,
-            size=None,
-            url=None,
-            content=None):
+                 filename=None,
+                 checksum=None,
+                 size=None,
+                 url=None,
+                 content=None):
 
         self.filename = filename
         self.checksum = checksum
@@ -26,4 +26,3 @@ class FileDTO:
 
     def __repr__(self):
         return '<FileDTO filename:{} checksum:{}>'.format(self.filename, self.checksum)
-

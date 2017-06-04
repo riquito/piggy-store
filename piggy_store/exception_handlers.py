@@ -13,14 +13,18 @@ from piggy_store.controller import hateoas_new_user
 
 logger = logging.getLogger('errors')
 
+
 def handle_unhautorized_errors(e):
     return make_error_response(401, e.code, e.message, links=hateoas_new_user())
+
 
 def handle_forbidden_errors(e):
     return make_error_response(403, e.code, e.message)
 
+
 def handle_piggy_store_errors(e):
     return make_error_response(409, e.code, e.message)
+
 
 def on_flask_http_exception(e):
     if isinstance(e, werkzeug.exceptions.HTTPException):
@@ -30,9 +34,11 @@ def on_flask_http_exception(e):
         logger.exception(e)
         return make_error_response(500, 500, 'Internal Server Error')
 
+
 def on_error(e):
     logger.exception(e)
     return make_error_response(500, 500, 'Internal Server Error')
+
 
 @as_json
 def make_error_response(status, subcode, message, links=None):
@@ -51,6 +57,7 @@ def make_error_response(status, subcode, message, links=None):
 
     return json_content, status
 
+
 def register_default_exceptions(app):
     app.register_error_handler(Exception, on_error)
 
@@ -68,4 +75,3 @@ def register_default_exceptions(app):
 
     for werkzeugException in werkzeug.exceptions.default_exceptions:
         app.register_error_handler(werkzeugException, on_flask_http_exception)
-

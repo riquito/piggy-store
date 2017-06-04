@@ -5,6 +5,7 @@ from piggy_store.storage.users.user_entity import User
 from piggy_store.storage.users.storage import Storage as BaseStorage
 from piggy_store.storage.files import access_admin_storage, access_user_storage
 
+
 class Storage(BaseStorage):
     __instance = None
 
@@ -12,10 +13,10 @@ class Storage(BaseStorage):
         if not cls.__instance:
             cls.__instance = object.__new__(cls)
             cls.conn = redis.StrictRedis(
-                host = options['host'],
-                port = options['port'],
-                db = options['database'],
-                decode_responses = True
+                host=options['host'],
+                port=options['port'],
+                db=options['database'],
+                decode_responses=True
             )
 
         return cls.__instance

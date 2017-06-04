@@ -18,6 +18,7 @@ from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
 
+
 @bp.route('/', methods=['GET'])
 @as_json
 def root():
@@ -27,6 +28,7 @@ def root():
             **hateoas_new_user()
         }
     }
+
 
 @bp.route('/files/', methods=['GET'])
 @as_json
@@ -50,6 +52,7 @@ def list_user_files():
         ]
     }
 
+
 @bp.route('/user/', methods=['POST'])
 @as_json
 def new_user():
@@ -60,8 +63,8 @@ def new_user():
     file_storage = access_admin_storage()
     filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
     challenge_file = FileDTO(
-        filename = filename,
-        content = payload['challenge']
+        filename=filename,
+        content=payload['challenge']
     )
     file_storage.add_file(challenge_file)
 
@@ -82,6 +85,7 @@ def new_user():
         }
     }
 
+
 @bp.route('/user/', methods=['DELETE'])
 @as_json
 def delete_user():
@@ -95,6 +99,7 @@ def delete_user():
             **hateoas_new_user()
         }
     }
+
 
 @bp.route('/user/auth/request-challenge', methods=['GET'])
 @as_json
@@ -112,6 +117,7 @@ def auth_user_request_challenge():
             **hateoas_auth_user_answer_challenge()
         }
     }
+
 
 @bp.route('/user/auth/answer-challenge', methods=['POST'])
 @as_json
@@ -135,6 +141,7 @@ def auth_user_answer_challenge():
         }
     }
 
+
 @bp.route('/file/delete', methods=['DELETE'])
 @as_json
 def file_delete():
@@ -146,6 +153,7 @@ def file_delete():
     file_storage = access_user_storage(user.username)
     file_storage.remove_by_filename(payload['filename'])
     return {}
+
 
 @bp.route('/file/request-upload-url', methods=['POST'])
 @as_json
@@ -165,6 +173,7 @@ def request_upload_url():
         }
     }
 
+
 def hateoas_auth_user_request_challenge():
     return {
         'request_auth_challenge': {
@@ -172,6 +181,7 @@ def hateoas_auth_user_request_challenge():
             'href': url_for('controller.auth_user_answer_challenge', _external=True)
         }
     }
+
 
 def hateoas_auth_user_answer_challenge():
     return {
@@ -190,6 +200,7 @@ def hateoas_new_user():
         }
     }
 
+
 def hateoas_list_user_files():
     return {
         'files_list': {
@@ -197,6 +208,7 @@ def hateoas_list_user_files():
             'href': url_for('controller.list_user_files', _external=True)
         }
     }
+
 
 def hateoas_file_delete():
     return {
@@ -206,6 +218,7 @@ def hateoas_file_delete():
         }
     }
 
+
 def hateoas_file_read(f):
     return {
         'read': {
@@ -213,6 +226,7 @@ def hateoas_file_read(f):
             'href': f.url
         }
     }
+
 
 def hateoas_request_upload_url():
     return {

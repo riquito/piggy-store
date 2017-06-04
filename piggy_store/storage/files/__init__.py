@@ -4,9 +4,11 @@ from piggy_store.storage.files.file_entity import FileDTO
 
 # hereon I write "directory" but I mean "prefix" in an S3 context
 
-ADMIN_DIR = 'admin$/' # The $ symbol is not allowed as username, so even if USERS_DIR
-                     # were empty a malicious user could not access that directory
+# The $ symbol is not allowed as username, so even if USERS_DIR
+# were empty a malicious user could not access that directory
+ADMIN_DIR = 'admin$/'
 USERS_DIR = 'users/'
+
 
 def access_user_storage(username):
     file_storage_module = import_module(config['storage']['files']['module'])
@@ -18,6 +20,7 @@ def access_user_storage(username):
     storage.init()
 
     return storage
+
 
 def access_admin_storage():
     file_storage_module = import_module(config['storage']['files']['module'])
