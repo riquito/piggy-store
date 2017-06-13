@@ -44,16 +44,6 @@ class Storage(BaseStorage):
         else:
             self.conn.delete(user.username)
 
-    def _get_challenge_file(self, username):
-        file_storage = access_admin_storage()
-        filename_prefix = compose_challenge_file_filename(username, '')
-        challenge_file = None
-
-        for challenge_file in file_storage.get_files_list(prefix=filename_prefix):
-            break
-
-        return challenge_file
-
     def find_user_by_username(self, username):
         user = None
 
@@ -65,7 +55,7 @@ class Storage(BaseStorage):
         else:
             # Do we have the user data at all?
             file_storage = access_admin_storage()
-            challenge_file = self._get_challenge_file(username)
+            challenge_file = file_storage.get_first_matching_file(compose_challenge_file_filename(username, ''))
             if challenge_file:
                 challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
                 answer = parse_challenge_file_filename(challenge_file.get_filename())['answer']

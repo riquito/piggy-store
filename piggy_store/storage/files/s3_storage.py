@@ -108,3 +108,11 @@ class Storage(BaseStorage):
             content.write(d)
         content.seek(0)
         return content.read()
+
+    def get_first_matching_file(self, prefix):
+        f = None
+
+        for f in self.get_files_list(prefix=prefix):
+            break
+
+        return f
