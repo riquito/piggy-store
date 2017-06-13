@@ -3,7 +3,12 @@ import redis
 from piggy_store.exceptions import UserExistsError, UserDoesNotExistError
 from piggy_store.storage.users.user_entity import User
 from piggy_store.storage.users.storage import Storage as BaseStorage
-from piggy_store.storage.files import access_admin_storage, access_user_storage
+from piggy_store.storage.files import (
+    access_admin_storage,
+    access_user_storage,
+    compose_challenge_file_filename,
+    parse_challenge_file_filename
+)
 
 
 class Storage(BaseStorage):
@@ -41,16 +46,13 @@ class Storage(BaseStorage):
 
     def _get_challenge_file(self, username):
         file_storage = access_admin_storage()
-        filename_prefix = 'challenge_{}_'.format(username)
+        filename_prefix = compose_challenge_file_filename(username, '')
         challenge_file = None
 
         for challenge_file in file_storage.get_files_list(prefix=filename_prefix):
             break
 
         return challenge_file
-
-    def _get_answer_from_filename(self, filename):
-        return filename.split('_', 2)[-1]
 
     def find_user_by_username(self, username):
         user = None
@@ -66,7 +68,7 @@ class Storage(BaseStorage):
             challenge_file = self._get_challenge_file(username)
             if challenge_file:
                 challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
-                answer = self._get_answer_from_filename(challenge_file.get_filename())
+                answer = parse_challenge_file_filename(challenge_file.get_filename())['answer']
                 user = User(username, challenge, answer)
                 self.add_user(user)
 
@@ -81,7 +83,7 @@ class Storage(BaseStorage):
         user_file_storage.remove_multiple((user_file_storage.get_files_list()))
 
         admin_file_storage = access_admin_storage()
-        challenge_file_filename = 'challenge_{}_{}'.format(user.username, user.answer)
+        challenge_file_filename = compose_challenge_file_filename(user.username, user.answer)
         f = admin_file_storage.build_file(challenge_file_filename)
         admin_file_storage.remove_file(f)
 

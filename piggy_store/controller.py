@@ -12,7 +12,7 @@ from piggy_store.validators import (
     file_delete_validator
 )
 from piggy_store.authentication import generate_auth_token, decode_auth_token
-from piggy_store.storage.files import access_admin_storage, access_user_storage
+from piggy_store.storage.files import access_admin_storage, access_user_storage, compose_challenge_file_filename
 from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
@@ -60,7 +60,8 @@ def new_user():
     user = User(payload['username'], payload['challenge'], payload['answer'])
     get_user_storage().add_user(user)
     file_storage = access_admin_storage()
-    filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
+
+    filename = compose_challenge_file_filename(user.username, payload['answer'])
 
     challenge_file = file_storage.build_file(filename, dict(
         content=payload['challenge']
