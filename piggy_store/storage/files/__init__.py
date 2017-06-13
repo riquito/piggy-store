@@ -1,6 +1,5 @@
 from importlib import import_module
 from piggy_store.config import config
-from piggy_store.storage.files.file_entity import FileDTO
 
 # hereon I write "directory" but I mean "prefix" in an S3 context
 

@@ -28,9 +28,6 @@ class Storage(BaseStorage):
     def _get_object_name(self, filename):
         return '{}{}'.format(self.user_dir, filename)
 
-    def _get_basename(self, object_name):
-        return object_name[len(self.user_dir):]
-
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(
             self.bucket,
@@ -38,8 +35,11 @@ class Storage(BaseStorage):
             self.opts['download_url_expire_after']
         )
 
+    def build_file(self, filename, raw_file):
+        return FileDTO(**raw_file, object_name=self.user_dir + filename)
+
     def add_file(self, f):
-        object_name = self._get_object_name(f.filename)
+        object_name = f.object_name
 
         try:
             self.client.stat_object(self.bucket, object_name)
@@ -49,9 +49,10 @@ class Storage(BaseStorage):
                 etag = self.client.put_object(self.bucket, object_name, content_stream, f.size)
                 url = self._get_temporary_url(object_name)
 
-                raw_file = f.as_dict()
-                raw_file['checksum'] = etag
-                raw_file['url'] = url
+                return f.clone(
+                    checksum=etag,
+                    url=url
+                )
 
                 return FileDTO(**raw_file)
             else:
@@ -67,7 +68,7 @@ class Storage(BaseStorage):
                 obj.etag = self.client.stat_object(self.bucket, obj.object_name).etag
 
             yield FileDTO(
-                filename=self._get_basename(obj.object_name),
+                object_name=obj.object_name,
                 size=obj.size,
                 checksum=obj.etag,
                 url=self._get_temporary_url(obj.object_name)
@@ -96,15 +97,15 @@ class Storage(BaseStorage):
         errors = []
         for error in self.client.remove_objects(
             self.bucket,
-            (self._get_object_name(f.filename) for f in files)
+            (f.object_name for f in files)
         ):
             errors.append((f, error))
 
         if errors:
             raise MultipleFilesRemoveError(errors)
 
-    def get_file_content(self, filename):
-        data = self.client.get_object(self.bucket, self._get_object_name(filename))
+    def get_file_content(self, f):
+        data = self.client.get_object(self.bucket, f.object_name)
         content = BytesIO()
         for d in data.stream(32 * 1024):
             content.write(d)

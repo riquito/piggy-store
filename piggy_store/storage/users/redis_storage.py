@@ -65,8 +65,8 @@ class Storage(BaseStorage):
             file_storage = access_admin_storage()
             challenge_file = self._get_challenge_file(username)
             if challenge_file:
-                challenge = file_storage.get_file_content(challenge_file.filename).decode('utf-8')
-                answer = self._get_answer_from_filename(challenge_file.filename)
+                challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
+                answer = self._get_answer_from_filename(challenge_file.get_filename())
                 user = User(username, challenge, answer)
                 self.add_user(user)
 

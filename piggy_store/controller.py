@@ -13,7 +13,6 @@ from piggy_store.validators import (
 )
 from piggy_store.authentication import generate_auth_token, decode_auth_token
 from piggy_store.storage.files import access_admin_storage, access_user_storage
-from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
@@ -62,13 +61,13 @@ def new_user():
     get_user_storage().add_user(user)
     file_storage = access_admin_storage()
     filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
-    challenge_file = FileDTO(
-        filename=filename,
+
+    challenge_file = file_storage.build_file(filename, dict(
         content=payload['challenge']
-    )
+    ))
     file_storage.add_file(challenge_file)
 
-    stored_challenge = file_storage.get_file_content(filename).decode('utf-8')
+    stored_challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
 
     if stored_challenge != payload['challenge']:
         # it would be better if we could send a checksum client side
