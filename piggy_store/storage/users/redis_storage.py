@@ -82,6 +82,7 @@ class Storage(BaseStorage):
 
         admin_file_storage = access_admin_storage()
         challenge_file_filename = 'challenge_{}_{}'.format(user.username, user.answer)
-        admin_file_storage.remove_by_filename(challenge_file_filename)
+        f = admin_file_storage.build_file(challenge_file_filename)
+        admin_file_storage.remove_file(f)
 
         self.delete_user(user)

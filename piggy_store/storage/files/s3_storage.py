@@ -25,9 +25,6 @@ class Storage(BaseStorage):
             region=self.opts['region']
         )
 
-    def _get_object_name(self, filename):
-        return '{}{}'.format(self.user_dir, filename)
-
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(
             self.bucket,
@@ -35,8 +32,8 @@ class Storage(BaseStorage):
             self.opts['download_url_expire_after']
         )
 
-    def build_file(self, filename, raw_file):
-        return FileDTO(**raw_file, object_name=self.user_dir + filename)
+    def build_file(self, filename, raw_file=None):
+        return FileDTO(**(raw_file or {}), object_name=self.user_dir + filename)
 
     def add_file(self, f):
         object_name = f.object_name
@@ -74,12 +71,12 @@ class Storage(BaseStorage):
                 url=self._get_temporary_url(obj.object_name)
             )
 
-    def get_presigned_upload_url(self, filename):
+    def get_presigned_upload_url(self, f):
         # presigned Put object URL for an object name, expires in 3 days.
         try:
             return self.client.presigned_put_object(
                 self.bucket,
-                self._get_object_name(filename),
+                f.object_name,
                 expires=timedelta(days=3)
             )
         # Response error is still possible since internally presigned does get
@@ -87,10 +84,10 @@ class Storage(BaseStorage):
         except ResponseError as e:
             raise e
 
-    def remove_by_filename(self, filename):
+    def remove_file(self, f):
         self.client.remove_object(
             self.bucket,
-            self._get_object_name(filename)
+            f.object_name
         )
 
     def remove_multiple(self, files):

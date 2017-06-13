@@ -150,7 +150,8 @@ def file_delete():
     user = get_user_storage().find_user_by_username(token.username)
 
     file_storage = access_user_storage(user.username)
-    file_storage.remove_by_filename(payload['filename'])
+    f = file_storage.build_file(payload['filename'])
+    file_storage.remove_file(f)
     return {}
 
 
@@ -163,11 +164,13 @@ def request_upload_url():
     user = get_user_storage().find_user_by_username(token.username)
 
     file_storage = access_user_storage(user.username)
+    f = file_storage.build_file(payload['filename'])
+
     return {
         'links': {
             'upload_url': {
                 'rel': 'file',
-                'href': file_storage.get_presigned_upload_url(payload['filename'])
+                'href': file_storage.get_presigned_upload_url(f)
             }
         }
     }
