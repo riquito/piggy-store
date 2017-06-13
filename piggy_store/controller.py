@@ -12,8 +12,7 @@ from piggy_store.validators import (
     file_delete_validator
 )
 from piggy_store.authentication import generate_auth_token, decode_auth_token
-from piggy_store.storage.files import access_admin_storage, access_user_storage
-from piggy_store.storage.files.file_entity import FileDTO
+from piggy_store.storage.files import access_admin_storage, access_user_storage, compose_challenge_file_filename
 from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
@@ -61,14 +60,15 @@ def new_user():
     user = User(payload['username'], payload['challenge'], payload['answer'])
     get_user_storage().add_user(user)
     file_storage = access_admin_storage()
-    filename = 'challenge_{}_{}'.format(user.username, payload['answer'])
-    challenge_file = FileDTO(
-        filename=filename,
+
+    filename = compose_challenge_file_filename(user.username, payload['answer'])
+
+    challenge_file = file_storage.build_file(filename, dict(
         content=payload['challenge']
-    )
+    ))
     file_storage.add_file(challenge_file)
 
-    stored_challenge = file_storage.get_file_content(filename).decode('utf-8')
+    stored_challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
 
     if stored_challenge != payload['challenge']:
         # it would be better if we could send a checksum client side
@@ -151,7 +151,8 @@ def file_delete():
     user = get_user_storage().find_user_by_username(token.username)
 
     file_storage = access_user_storage(user.username)
-    file_storage.remove_by_filename(payload['filename'])
+    f = file_storage.build_file(payload['filename'])
+    file_storage.remove_file(f)
     return {}
 
 
@@ -164,11 +165,13 @@ def request_upload_url():
     user = get_user_storage().find_user_by_username(token.username)
 
     file_storage = access_user_storage(user.username)
+    f = file_storage.build_file(payload['filename'])
+
     return {
         'links': {
             'upload_url': {
                 'rel': 'file',
-                'href': file_storage.get_presigned_upload_url(payload['filename'])
+                'href': file_storage.get_presigned_upload_url(f)
             }
         }
     }

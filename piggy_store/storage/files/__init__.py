@@ -1,6 +1,5 @@
 from importlib import import_module
 from piggy_store.config import config
-from piggy_store.storage.files.file_entity import FileDTO
 
 # hereon I write "directory" but I mean "prefix" in an S3 context
 
@@ -28,3 +27,15 @@ def access_admin_storage():
     storage.init()
 
     return storage
+
+
+def compose_challenge_file_filename(username, answer):
+    return 'challenge_{}_{}'.format(username, answer)
+
+
+def parse_challenge_file_filename(filename):
+    challenge_fixed_string, username, answer = filename.split('_', 2)
+    return {
+        'username': username,
+        'answer': answer
+    }
