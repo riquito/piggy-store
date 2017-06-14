@@ -1,17 +1,15 @@
+from piggy_store.storage.users import User
+from piggy_store.exceptions import (
+    UserExistsError,
+    UserDoesNotExistError,
+    FileExistsError
+)
+from piggy_store.storage import EasyStorage, EasyStorageABC
+
 import redis
 
-from piggy_store.exceptions import UserExistsError, UserDoesNotExistError
-from piggy_store.storage.users.user_entity import User
-from piggy_store.storage.users.storage import Storage as BaseStorage
-from piggy_store.storage.files import (
-    access_admin_storage,
-    access_user_storage,
-    compose_challenge_file_filename,
-    parse_challenge_file_filename
-)
 
-
-class Storage(BaseStorage):
+class Storage(EasyStorageABC):
     __instance = None
 
     def __new__(cls, options, **kwargs):
@@ -27,22 +25,44 @@ class Storage(BaseStorage):
         return cls.__instance
 
     def __init__(self, *args, **kwargs):
-        pass
+        self.es = EasyStorage()
 
     def add_user(self, user):
-        if self.conn.exists(user.username):
-            raise UserExistsError()
-        else:
-            self.conn.hmset(user.username, {
-                'challenge': user.challenge,
-                'answer': user.answer
-            })
+        self._add_user_to_cache(user)
 
-    def delete_user(self, user):
-        if not self.conn.exists(user.username):
-            raise UserDoesNotExistError()
-        else:
-            self.conn.delete(user.username)
+        try:
+            return self.es.add_user(user)
+        except FileExistsError:
+            # e.g. redis restarted, client try to create an existing user
+
+            # We could delete the just created cache entry, and let the client
+            # either try to login (and so refresh the cache), or have him retry
+            # for some reason again to create the user. To avoid having someone
+            # trigger on purpose write/delete continuosly we choose to refresh
+            # the cache here now, so that new add_user requests won't write
+            # anything anymore.
+            self._update_user_cache(self.es.find_user_by_username(user.username))
+            raise UserExistsError()
+
+    def _add_user_to_cache(self, user):
+        """add the user to the cache atomically"""
+
+        fields_created = self.conn.hsetnx(user.username, 'challenge', user.challenge)
+        if fields_created == 0:
+            raise UserExistsError()
+
+        self.conn.hset(user.username, 'answer', user.answer)
+
+    def _update_user_cache(self, user):
+        self.conn.hmset(user.username, {
+            'challenge': user.challenge,
+            'answer': user.answer
+        })
+
+    def remove_user(self, user):
+        # XXX it's safe to call conn.delete() even if the key is missing
+        self.conn.delete(user.username)
+        self.es.remove_user(user)
 
     def find_user_by_username(self, username):
         user = None
@@ -54,27 +74,21 @@ class Storage(BaseStorage):
             user = User(username, data['challenge'], data['answer'])
         else:
             # Do we have the user data at all?
-            file_storage = access_admin_storage()
-            challenge_file = file_storage.get_first_matching_file(compose_challenge_file_filename(username, ''))
-            if challenge_file:
-                challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
-                answer = parse_challenge_file_filename(challenge_file.get_filename())['answer']
-                user = User(username, challenge, answer)
-                self.add_user(user)
+            user = self.es.find_user_by_username(username)
+            if user:
+                # found, let's cache it
+                self._add_user_to_cache(user)
 
         if user is None:
             raise UserDoesNotExistError()
 
         return user
 
-    def remove_user_by_username(self, username):
-        user = self.find_user_by_username(username)
-        user_file_storage = access_user_storage(user.username)
-        user_file_storage.remove_multiple((user_file_storage.get_files_list()))
+    def get_user_files(self, user):
+        return self.es.get_user_files(user)
 
-        admin_file_storage = access_admin_storage()
-        challenge_file_filename = compose_challenge_file_filename(user.username, user.answer)
-        f = admin_file_storage.build_file(challenge_file_filename)
-        admin_file_storage.remove_file(f)
+    def remove_file_by_filename(self, user, filename):
+        return self.es.remove_file_by_filename(user, filename)
 
-        self.delete_user(user)
+    def get_presigned_upload_url(self, user, filename):
+        return self.es.get_presigned_upload_url(user, filename)
