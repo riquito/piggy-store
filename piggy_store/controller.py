@@ -2,7 +2,8 @@ from flask import Blueprint, abort, request, url_for
 from flask_json import FlaskJSON, as_json
 from werkzeug.local import LocalProxy
 
-from piggy_store.storage.cache import get_cache_storage, User
+from piggy_store.storage.cache import get_cache_storage
+from piggy_store.storage.user_entity import User
 from piggy_store.validators import (
     delete_user_validator,
     new_user_validator,

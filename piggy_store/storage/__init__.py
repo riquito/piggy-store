@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from piggy_store.storage.cache import User
+from piggy_store.storage.user_entity import User
 from piggy_store.storage.files import (
     access_admin_storage,
     access_cache_storage,

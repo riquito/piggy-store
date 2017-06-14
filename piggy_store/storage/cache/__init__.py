@@ -1,6 +1,5 @@
 from importlib import import_module
 
-from piggy_store.storage.cache.user_entity import User
 from piggy_store.config import config
 
 
