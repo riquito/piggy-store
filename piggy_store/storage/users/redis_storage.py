@@ -4,12 +4,12 @@ from piggy_store.exceptions import (
     UserDoesNotExistError,
     FileExistsError
 )
-from piggy_store.storage import EasyStorage
+from piggy_store.storage import EasyStorage, EasyStorageABC
 
 import redis
 
 
-class Storage():
+class Storage(EasyStorageABC):
     __instance = None
 
     def __new__(cls, options, **kwargs):

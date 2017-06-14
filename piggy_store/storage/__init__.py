@@ -1,3 +1,5 @@
+from abc import ABCMeta, abstractmethod
+
 from piggy_store.storage.users import User
 from piggy_store.storage.files import (
     access_admin_storage,
@@ -7,7 +9,33 @@ from piggy_store.storage.files import (
 )
 
 
-class EasyStorage:
+class EasyStorageABC(metaclass=ABCMeta):
+    @abstractmethod
+    def find_user_by_username(self, username):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def remove_user(self, user):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def add_user(self, user):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_user_files(self, user):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def remove_file_by_filename(self, user, filename):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_presigned_upload_url(self, user, filename):
+        raise NotImplementedError()
+
+
+class EasyStorage(EasyStorageABC):
     def find_user_by_username(self, username):
         file_storage = access_admin_storage()
         challenge_file = file_storage.get_first_matching_file(compose_challenge_file_filename(username, ''))
