@@ -28,3 +28,32 @@ class EasyStorage:
         challenge_file_filename = compose_challenge_file_filename(user.username, user.answer)
         f = admin_file_storage.build_file(challenge_file_filename)
         admin_file_storage.remove_file(f)
+
+    def add_user(self, user):
+        file_storage = access_admin_storage()
+        filename = compose_challenge_file_filename(user.username, user.answer)
+        challenge_file = file_storage.build_file(filename, dict(
+            content=user.challenge
+        ))
+        file_storage.add_file(challenge_file)
+
+        stored_challenge = file_storage.get_file_content(challenge_file).decode('utf-8')
+
+        if stored_challenge != user.challenge:
+            # it would be better if we could send a checksum client side
+            raise Error('XXX we wrongly stored the challenge')
+
+        return stored_challenge
+
+    def get_user_files(self, user):
+        return access_user_storage(user.username).get_files_list()
+
+    def remove_file_by_filename(self, user, filename):
+        file_storage = access_user_storage(user.username)
+        f = file_storage.build_file(filename)
+        file_storage.remove_file(f)
+
+    def get_presigned_upload_url(self, user, filename):
+        file_storage = access_user_storage(user.username)
+        f = file_storage.build_file(filename)
+        return file_storage.get_presigned_upload_url(f)
