@@ -1,9 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
-from piggy_store.storage.users import User
+from piggy_store.storage.cache import User
 from piggy_store.storage.files import (
     access_admin_storage,
-    access_user_storage,
+    access_cache_storage,
     compose_challenge_file_filename,
     parse_challenge_file_filename
 )
@@ -49,7 +49,7 @@ class EasyStorage(EasyStorageABC):
         return user
 
     def remove_user(self, user):
-        user_file_storage = access_user_storage(user.username)
+        user_file_storage = access_cache_storage(user.username)
         user_file_storage.remove_multiple((user_file_storage.get_files_list()))
 
         admin_file_storage = access_admin_storage()
@@ -74,14 +74,14 @@ class EasyStorage(EasyStorageABC):
         return stored_challenge
 
     def get_user_files(self, user):
-        return access_user_storage(user.username).get_files_list()
+        return access_cache_storage(user.username).get_files_list()
 
     def remove_file_by_filename(self, user, filename):
-        file_storage = access_user_storage(user.username)
+        file_storage = access_cache_storage(user.username)
         f = file_storage.build_file(filename)
         file_storage.remove_file(f)
 
     def get_presigned_upload_url(self, user, filename):
-        file_storage = access_user_storage(user.username)
+        file_storage = access_cache_storage(user.username)
         f = file_storage.build_file(filename)
         return file_storage.get_presigned_upload_url(f)

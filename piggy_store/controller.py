@@ -2,7 +2,7 @@ from flask import Blueprint, abort, request, url_for
 from flask_json import FlaskJSON, as_json
 from werkzeug.local import LocalProxy
 
-from piggy_store.storage.users import get_user_storage, User
+from piggy_store.storage.cache import get_cache_storage, User
 from piggy_store.validators import (
     delete_user_validator,
     new_user_validator,
@@ -13,11 +13,11 @@ from piggy_store.validators import (
     file_delete_validator
 )
 from piggy_store.authentication import generate_auth_token, decode_auth_token
-from piggy_store.storage.users import get_user_storage
+from piggy_store.storage.cache import get_cache_storage
 from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
-db = LocalProxy(get_user_storage)
+db = LocalProxy(get_cache_storage)
 
 
 @bp.route('/', methods=['GET'])

@@ -25,7 +25,7 @@ def get_minimal_loadable_config():
             'dsn':  ''
         },
         'storage': {
-            'users': {
+            'cache': {
                 'module': '',
                 'params': {}
             },
@@ -58,9 +58,9 @@ def test_cannot_load_config_twice(config_mod):
     'sentry',
     'sentry.dsn',
     'storage',
-    'storage.users',
-    'storage.users.module',
-    'storage.users.params',
+    'storage.cache',
+    'storage.cache.module',
+    'storage.cache.params',
     'storage.files',
     'storage.files.module',
     'storage.files.params',

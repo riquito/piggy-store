@@ -9,7 +9,7 @@ ADMIN_DIR = 'admin$/'
 USERS_DIR = 'users/'
 
 
-def access_user_storage(username):
+def access_cache_storage(username):
     file_storage_module = import_module(config['storage']['files']['module'])
 
     # add a pending / to avoid that a username can be the prefix of another one

@@ -9,8 +9,8 @@ server:
     port: 5000
     name: localhost
 storage:
-    users:
-        module: piggy_store.storage.users.redis_storage
+    cache:
+        module: piggy_store.storage.cache.redis_storage
         params:
             host: user_db
             port: 6379
