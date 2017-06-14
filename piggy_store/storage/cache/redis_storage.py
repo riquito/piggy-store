@@ -1,4 +1,4 @@
-from piggy_store.storage.users import User
+from piggy_store.storage.user_entity import User
 from piggy_store.exceptions import (
     UserExistsError,
     UserDoesNotExistError,

@@ -10,8 +10,8 @@ server:
     port: {{ getv "/app/piggy/port" "5000" }}
     name: {{ getv "/app/piggy/name" "localhost" }}
 storage:
-    users:
-        module: piggy_store.storage.users.redis_storage
+    cache:
+        module: piggy_store.storage.cache.redis_storage
         params:
             host: {{ getv "/app/redis/host" "user_db" }}
             port: {{ getv "/app/redis/port" "6379" }}

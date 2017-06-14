@@ -121,9 +121,9 @@ class PiggyStoreTestCase(unittest.TestCase):
         )
 
         cls._rediscli = redis.StrictRedis(
-            host = config['storage']['users']['params']['host'],
-            port = config['storage']['users']['params']['port'],
-            db = config['storage']['users']['params']['database'],
+            host = config['storage']['cache']['params']['host'],
+            port = config['storage']['cache']['params']['port'],
+            db = config['storage']['cache']['params']['database'],
             decode_responses = True
         )
 

@@ -62,6 +62,7 @@ def _sanitize_config(config):
     config.setdefault('debug', False)
     config.setdefault('uploads', {})
     config['uploads'].setdefault('max_content_length', '1M')
+    print((repr(config)))
 
     try:
         config['debug']
@@ -75,9 +76,9 @@ def _sanitize_config(config):
         config['sentry']
         config['sentry']['dsn']
         config['storage']
-        config['storage']['users']
-        config['storage']['users']['module']
-        config['storage']['users']['params']
+        config['storage']['cache']
+        config['storage']['cache']['module']
+        config['storage']['cache']['params']
         config['storage']['files']
         config['storage']['files']['module']
         config['storage']['files']['params']
