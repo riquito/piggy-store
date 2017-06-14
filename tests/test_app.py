@@ -228,6 +228,25 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_try_to_create_new_user_but_the_user_already_exists_and_the_cache_is_cleared_midway(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+
+        # The user's data would be read from the cache. Let's avoid that.
+        assert self._rediscli.hgetall(FOO_USERNAME)['answer']
+        self._rediscli.delete(FOO_USERNAME)
+
+        r = self.cli.create_user_foo()
+        assert r.status_code == 409
+        assert json.loads(r.data.decode('utf-8')) == \
+        {
+            "status": 409,
+            "error": {
+                "code": 1000,
+                "message": "User already exists"
+            }
+        }
+
     def test_get_auth_challenge_no_username_provided(self):
         r = self.cli.get_auth_challenge()
         assert r.status_code == 409
