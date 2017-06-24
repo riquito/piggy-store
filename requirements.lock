@@ -9,7 +9,7 @@ Flask-JSON==0.3.0
 itsdangerous==0.24
 Jinja2==2.9.5
 MarkupSafe==0.23
-minio==2.1.0
+minio==2.2.3
 packaging==16.8
 pluggy==0.4.0
 py==1.4.33
