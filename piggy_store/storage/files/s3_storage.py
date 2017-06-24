@@ -2,7 +2,7 @@ from io import BytesIO
 from datetime import timedelta
 
 from minio import Minio
-from minio.error import ResponseError
+from minio.error import NoSuchKey
 
 from piggy_store.exceptions import FileExistsError, MultipleFilesRemoveError
 from piggy_store.storage.files.file_entity import FileDTO
@@ -40,20 +40,15 @@ class Storage(BaseStorage):
 
         try:
             self.client.stat_object(self.bucket, object_name)
-        except ResponseError as e:
-            if e.code == 'NoSuchKey':
-                content_stream = BytesIO(f.content)
-                etag = self.client.put_object(self.bucket, object_name, content_stream, f.size)
-                url = self._get_temporary_url(object_name)
+        except NoSuchKey as e:
+            content_stream = BytesIO(f.content)
+            etag = self.client.put_object(self.bucket, object_name, content_stream, f.size)
+            url = self._get_temporary_url(object_name)
 
-                return f.clone(
-                    checksum=etag,
-                    url=url
-                )
-
-                return FileDTO(**raw_file)
-            else:
-                raise e  # XXX should I encapsulate the exception in PiggyStoreError?
+            return f.clone(
+                checksum=etag,
+                url=url
+            )
         else:
             raise FileExistsError()
 
@@ -73,16 +68,11 @@ class Storage(BaseStorage):
 
     def get_presigned_upload_url(self, f):
         # presigned Put object URL for an object name, expires in 3 days.
-        try:
-            return self.client.presigned_put_object(
-                self.bucket,
-                f.object_name,
-                expires=timedelta(days=3)
-            )
-        # Response error is still possible since internally presigned does get
-        # bucket location.
-        except ResponseError as e:
-            raise e
+        return self.client.presigned_put_object(
+            self.bucket,
+            f.object_name,
+            expires=timedelta(days=3)
+        )
 
     def remove_file(self, f):
         self.client.remove_object(
