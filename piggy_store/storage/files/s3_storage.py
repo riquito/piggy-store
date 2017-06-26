@@ -82,11 +82,12 @@ class Storage(BaseStorage):
 
     def remove_multiple(self, files):
         errors = []
-        for error in self.client.remove_objects(
+        files = [f for f in files]
+        for i, error in enumerate(self.client.remove_objects(
             self.bucket,
             (f.object_name for f in files)
-        ):
-            errors.append((f, error))
+        )):
+            errors.append((files[i], error))
 
         if errors:
             raise MultipleFilesRemoveError(errors)

@@ -6,6 +6,7 @@ import werkzeug
 from piggy_store.exceptions import (
     PiggyStoreError,
     UserDoesNotExistError,
+    MultipleFilesRemoveError,
     ChallengeMismatchError
 )
 
@@ -24,6 +25,10 @@ def handle_forbidden_errors(e):
 
 def handle_piggy_store_errors(e):
     return make_error_response(409, e.code, e.message)
+
+
+def handle_external_errors(e):
+    return make_error_response(500, e.code, e.message)
 
 
 def on_flask_http_exception(e):
@@ -68,6 +73,10 @@ def register_default_exceptions(app):
     # 403s
     for exc_class in (ChallengeMismatchError, ):
         app.register_error_handler(exc_class, handle_forbidden_errors)
+
+    # 500 caused by errors in external communications
+    for exc_class in (MultipleFilesRemoveError, ):
+        app.register_error_handler(exc_class, handle_external_errors)
 
     # 409, generic error
     for exc_class in (PiggyStoreError, ):
