@@ -749,6 +749,43 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_delete_user_fail_to_delete_multiple_files(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        self.cli.upload_file_to_user(token, 'file_xyz', b'some content')
+
+        error_key = 'Dummy error key'
+        error_code = 'Dummy error code'
+        error_message = 'Dummy error message'
+
+        # patch the third party library Minio so that it's more similar to an integration test:
+        # if we were to mock our call to minio.remove_objects() we would not detect api
+        # changes in the third party library (e.g. if they where to change the returned value
+        # of minio.remove_objects). Another pitfall would be to rely on a wrongly mocked
+        # returned value, thus having code that works on wrong assumptions.
+
+        from minio.error import MultiDeleteError
+        with patch('minio.api.parse_multi_object_delete_response') as mock_parse_multi_object_delete_response:
+            mock_parse_multi_object_delete_response.return_value = [
+                MultiDeleteError(error_key, error_code, error_message)
+            ]
+
+            # remove the user and his content
+            r = self.cli.delete_user(token)
+            assert mock_parse_multi_object_delete_response.called
+            assert r.status_code == 500
+            assert json.loads(r.data.decode('utf-8')) == \
+            {
+                "status": 500,
+                "error": {
+                    "code": 1013,
+                    "message": "There was an error deleting some files: Dummy error key [Dummy error code:Dummy error message]",
+                }
+            }
+
     def test_delete_twice_the_user_with_the_same_token(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200
