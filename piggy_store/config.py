@@ -62,7 +62,6 @@ def _sanitize_config(config):
     config.setdefault('debug', False)
     config.setdefault('uploads', {})
     config['uploads'].setdefault('max_content_length', '1M')
-    print((repr(config)))
 
     try:
         config['debug']
