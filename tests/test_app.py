@@ -1,7 +1,7 @@
 import os
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import base64
 import json
 import urllib
@@ -472,6 +472,69 @@ class PiggyStoreTestCase(unittest.TestCase):
                 }
             ]
         }
+
+    def test_list_files_does_not_produce_correctly_an_etag(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        self.cli.upload_file_to_user(token, 'filexyz', b'some content')
+
+        from minio.definitions import Object
+        from minio import Minio
+        with patch('piggy_store.storage.files.s3_storage.Minio', new=Minio) as orig_minio_class:
+            with patch.object(Minio, 'list_objects_v2') as mocked_list_objects_v2:
+                mocked_object = Object(
+                    'xxx bucket name unused here', # bucket_name
+                    'users/foo/filexyz', # object_name
+                    None, # last_modified
+                    None, # etag
+                    12 # size
+                )
+
+                mocked_list_objects_v2.return_value = [mocked_object]
+
+                r = self.cli.list_files(token)
+                assert mocked_list_objects_v2.called
+                assert r.status_code == 200
+                decoded_data = json.loads(r.data.decode('utf-8'))
+
+                try:
+                    # remove random X-Amz-* unpredictable items
+                    for idx, fname in enumerate(('filexyz', )):
+                        href_read = decoded_data['content'][idx]['links']['read']['href']
+                        decoded_data['content'][idx]['links']['read']['href'] = href_read.split('?', 1)[0]
+
+                        href_content = decoded_data['content'][idx]['content']['url']
+                        decoded_data['content'][idx]['content']['url'] = href_content.split('?', 1)[0]
+                except KeyError:
+                    pass
+
+
+                assert decoded_data == {
+                    'status': 200,
+                    'content': [
+                        {
+                            'links': {
+                                'read': {
+                                    'rel': 'file',
+                                    'href': 'http://s3like.com:9000/bucket-test/users/foo/filexyz'
+                                },
+                                'delete': {
+                                    'rel': 'file',
+                                    'href': 'http://localhost:5000/file/delete'
+                                }
+                            },
+                            'content': {
+                                'checksum': '9893532233caff98cd083a116b013c0b',
+                                'filename': 'filexyz',
+                                'size': 12,
+                                'url': 'http://s3like.com:9000/bucket-test/users/foo/filexyz'
+                            }
+                        }
+                    ]
+                }
 
     def test_delete_file(self):
         r = self.cli.create_user_foo()
