@@ -24,10 +24,6 @@ def create_app(config):
     app.config['DEBUG'] = config['debug']
     app.config['SENTRY_CONFIG'] = config['sentry']
 
-    port_in_hostname = str(config['server']['port']) not in ('443', '80')
-    app.config['SERVER_NAME'] = config['server']['name'] + \
-        (port_in_hostname and (':' + str(config['server']['port'])))
-
     app.register_blueprint(blueprint)
     app.after_request(add_preflight_request_headers)
 
