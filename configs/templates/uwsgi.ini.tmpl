@@ -1,4 +1,7 @@
 [uwsgi]
+# sentry requires threading enabled
+enable-threads = true
+
 module = piggy-store
 protocol = http
 
