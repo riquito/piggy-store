@@ -51,7 +51,7 @@ class Navigator:
 
     def create_user_foo(self):
         return self.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, FOO_ANSWER)
-    
+
     def answer_auth_challenge(self, username, answer):
         return self.cli.post('/user/auth/answer-challenge', data=json.dumps({
             'username': username,
@@ -68,7 +68,7 @@ class Navigator:
         content_md5 = base64.b64encode(md5(file_content).digest())
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-MD5': content_md5 
+            'Content-MD5': content_md5
         }
 
         return urllib.request.Request(
@@ -139,7 +139,7 @@ class PiggyStoreTestCase(unittest.TestCase):
     def tearDown(self):
         self.__class__._rediscli.flushdb()
         miniocli = self.__class__._miniocli
-        
+
         for bucket in miniocli.list_buckets():
             bucket_name = bucket.name
             errors = miniocli.remove_objects(bucket_name, (x.object_name for x in miniocli.list_objects_v2(bucket_name, '', recursive=True)))
@@ -151,7 +151,7 @@ class PiggyStoreTestCase(unittest.TestCase):
         assert r.headers.get('Content-Type') == 'application/json'
         assert r.headers.get('Access-Control-Allow-Origin') == '*'
         assert r.headers.get('Access-Control-Max-Age') == '86400'
-        
+
         allowed_methods_string = r.headers.get('Access-Control-Allow-Methods', '')
         allowed_methods = set(x.strip() for x in allowed_methods_string.split(','))
         assert allowed_methods == set(('HEAD', 'OPTIONS', 'GET', 'POST', 'PUT', 'DELETE'))
@@ -258,7 +258,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                 "message": "This field is required: username"
             }
         }
-        
+
     def test_get_auth_challenge_username_not_found(self):
         r = self.cli.get_auth_challenge('user1')
         assert r.status_code == 401
