@@ -605,6 +605,24 @@ class PiggyStoreTestCase(unittest.TestCase):
             ]
         }
 
+    def test_delete_file_field_filename_is_empty(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        r = self.cli.delete_file(token, '')
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == {
+            'status': 409,
+            'error': {
+                'code': 1004,
+                'message': 'Expected filename to not be empty'
+            }
+        }
+
     def test_token_expired(self):
         with patch('piggy_store.authentication.datetime') as mock_datetime:
             mock_datetime.utcnow.return_value = datetime(2017, 1, 1)
