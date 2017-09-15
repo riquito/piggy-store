@@ -389,6 +389,25 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_request_upload_url_field_filename_is_empty(self):
+        r = self.cli.create_user_foo()
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        r = self.cli.request_upload_url(token, filename='')
+        assert r.status_code == 409
+        decoded_data = json.loads(r.data.decode('utf-8'))
+
+        assert decoded_data == \
+        {
+            'status': 409,
+            'error': {
+                'code': 1004,
+                'message': 'Expected filename to not be empty'
+            }
+        }
+
     def test_upload_file(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200

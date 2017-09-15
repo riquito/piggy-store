@@ -77,6 +77,7 @@ def request_upload_url_validator(payload):
     _validate_has_attrs(payload, ['jwt', 'filename'])
     _validate_is_string('jwt', payload['jwt'])
     _validate_is_string('filename', payload['filename'])
+    _validate_is_not_empty('filename', payload['filename'])
 
     return dict(
         jwt=payload['jwt'],
