@@ -170,11 +170,11 @@ class PiggyStoreTestCase(unittest.TestCase):
             "status": 200,
             "links":  {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 },
                 "request_auth_challenge":  {
-                    "href": "http://localhost:5000/user/auth/answer-challenge",
+                    "href": "http://localhost/user/auth/answer-challenge",
                     "rel": "user"
                 }
             }
@@ -203,11 +203,11 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             "links": {
                 "files_list": {
-                    "href": "http://localhost:5000/files/",
+                    "href": "http://localhost/files/",
                     "rel": "file"
                 },
                 "request_upload_url": {
-                    "href": "http://localhost:5000/file/request-upload-url",
+                    "href": "http://localhost/file/request-upload-url",
                     "rel": "file"
                 }
             },
@@ -271,7 +271,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 }
             }
@@ -299,12 +299,12 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             'links': {
                 'answer_auth_challenge': {
-                    'rel': 'user', 
-                    'href': 'http://localhost:5000/user/auth/answer-challenge'
+                    'rel': 'user',
+                    'href': 'http://localhost/user/auth/answer-challenge'
                 },
                 'create_user': {
                     'rel': 'user',
-                    'href': 'http://localhost:5000/user/'
+                    'href': 'http://localhost/user/'
                 }
             }
         }
@@ -325,11 +325,11 @@ class PiggyStoreTestCase(unittest.TestCase):
             'links': {
                 'request_upload_url': {
                     'rel': 'file',
-                    'href': 'http://localhost:5000/file/request-upload-url'
+                    'href': 'http://localhost/file/request-upload-url'
                 },
                 'files_list': {
                     'rel': 'file',
-                    'href': 'http://localhost:5000/files/'
+                    'href': 'http://localhost/files/'
                 }
             }
         }
@@ -442,7 +442,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                         },
                         'delete': {
                             'rel': 'file',
-                            'href': 'http://localhost:5000/file/delete'
+                            'href': 'http://localhost/file/delete'
                         }
                     },
                     'content': {
@@ -460,7 +460,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                         },
                         'delete': {
                             'rel': 'file',
-                            'href': 'http://localhost:5000/file/delete'
+                            'href': 'http://localhost/file/delete'
                         }
                     },
                     'content': {
@@ -523,7 +523,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                                 },
                                 'delete': {
                                     'rel': 'file',
-                                    'href': 'http://localhost:5000/file/delete'
+                                    'href': 'http://localhost/file/delete'
                                 }
                             },
                             'content': {
@@ -573,7 +573,7 @@ class PiggyStoreTestCase(unittest.TestCase):
                         },
                         'delete': {
                                 'rel': 'file',
-                                'href': 'http://localhost:5000/file/delete'
+                                'href': 'http://localhost/file/delete'
                         }
                     },
                     'content': {
@@ -757,7 +757,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             "status": 200,
             "links": {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 }
             }
@@ -781,7 +781,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 }
             }
@@ -806,7 +806,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 }
             }
@@ -871,7 +871,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost:5000/user/",
+                    "href": "http://localhost/user/",
                     "rel": "user"
                 }
             }
