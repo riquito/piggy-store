@@ -99,3 +99,11 @@ class MultipleFilesRemoveError(PiggyStoreError):
                      error.error_code,
                      error.error_message) for f,
                     error in pairs_file_error)))
+
+
+class UserNotAllowedError(PiggyStoreError):
+    CODE = 1014
+    MESSAGE = 'The user is not allowed: {}'
+
+    def __init__(self, username):
+        super().__init__(self.CODE, self.MESSAGE.format(username))
