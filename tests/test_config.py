@@ -21,6 +21,7 @@ def get_minimal_loadable_config():
             'port': 443,
             'name': '',
         },
+        'users_whitelist': [],
         'sentry': {
             'dsn':  ''
         },
@@ -87,6 +88,7 @@ def test_error_on_missing_keys(config_mod, required_key):
 @pytest.mark.parametrize('defaulted_key', [
     'debug',
     'uploads.max_content_length',
+    'users_whitelist'
 ])
 def test_config_keys_with_defaults(config_mod, defaulted_key):
     # remove a key and check that it comes back with a default value

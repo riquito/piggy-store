@@ -21,7 +21,10 @@ if not config:
     config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.tests.yml')
     config = load_config(config_path)
 
+# NOTE: foo and foobar usernames are whitelisted in test_config.py
 FOO_USERNAME = 'foo'
+FOOBAR_USERNAME = 'foobar'
+
 FOO_ENC_CHALLENGE = 'assume I\'m an encrypted blob'
 FOO_ANSWER = 'a'* 32 # fake 32 bytes long sha256 checksum
 DEFAULT_FILENAME = 'default-filename'
@@ -768,6 +771,21 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
+    def test_create_new_user_not_whitelisted(self):
+        r = self.cli.create_new_user('nobodywhantsme', FOO_ENC_CHALLENGE, FOO_ANSWER)
+        print(r.data)
+        assert r.status_code == 403
+
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        assert decoded_data == \
+        {
+            'status': 403,
+            'error': {
+                'code': 1014,
+                'message': 'The user is not allowed: nobodywhantsme'
+            }
+        }
+
     def test_delete_user_success(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200
@@ -778,8 +796,7 @@ class PiggyStoreTestCase(unittest.TestCase):
         self.cli.upload_file_to_user(token_foo, 'file2', b'content 2')
 
         # add a user with the same prefix to check that we don't delete it too
-        foobar_username = FOO_USERNAME + 'bar'
-        r = self.cli.create_new_user(foobar_username, FOO_ENC_CHALLENGE, FOO_ANSWER)
+        r = self.cli.create_new_user(FOOBAR_USERNAME, FOO_ENC_CHALLENGE, FOO_ANSWER)
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
         token_foobar = decoded_data['content']['token']

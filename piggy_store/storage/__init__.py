@@ -7,7 +7,8 @@ from piggy_store.storage.files import (
     compose_challenge_file_filename,
     parse_challenge_file_filename
 )
-
+from piggy_store.exceptions import UserNotAllowedError
+from piggy_store.config import config
 
 class EasyStorageABC(metaclass=ABCMeta):
     @abstractmethod
@@ -58,6 +59,9 @@ class EasyStorage(EasyStorageABC):
         admin_file_storage.remove_file(f)
 
     def add_user(self, user):
+        if config['users_whitelist'] and not user.username in config['users_whitelist']:
+            raise UserNotAllowedError(user.username)
+
         file_storage = access_admin_storage()
         filename = compose_challenge_file_filename(user.username, user.answer)
         challenge_file = file_storage.build_file(filename, dict(

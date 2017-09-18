@@ -7,7 +7,8 @@ from piggy_store.exceptions import (
     PiggyStoreError,
     UserDoesNotExistError,
     MultipleFilesRemoveError,
-    ChallengeMismatchError
+    ChallengeMismatchError,
+    UserNotAllowedError
 )
 
 from piggy_store.controller import hateoas_new_user
@@ -71,7 +72,7 @@ def register_default_exceptions(app):
         app.register_error_handler(exc_class, handle_unhautorized_errors)
 
     # 403s
-    for exc_class in (ChallengeMismatchError, ):
+    for exc_class in (ChallengeMismatchError, UserNotAllowedError):
         app.register_error_handler(exc_class, handle_forbidden_errors)
 
     # 500 caused by errors in external communications
