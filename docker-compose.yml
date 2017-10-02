@@ -9,6 +9,7 @@ services:
         depends_on:
             - user_db
             - s3_like
+            - createbuckets
         links:
             - user_db
             - s3_like:s3like.com
@@ -16,6 +17,7 @@ services:
             APP_S3_SECURE: 'false'
             APP_S3_KEY_ACCESS: notsecret_access_key
             APP_S3_KEY_SECRET: notsecret_secret_key
+            APP_S3_BUCKET: piggy-bucket
             APP_PIGGY_HOST: '0.0.0.0'
             APP_PIGGY_PORT: '5000'
             APP_PIGGY_SENTRYDSN: ''
@@ -38,4 +40,17 @@ services:
         environment:
             MINIO_ACCESS_KEY: notsecret_access_key
             MINIO_SECRET_KEY: notsecret_secret_key
-
+    createbuckets:
+        image: minio/mc
+        depends_on:
+            - s3_like
+        links:
+            - s3_like:s3like.com
+        entrypoint: >
+            /bin/sh -c "
+                sleep 3;
+                /usr/bin/mc config host add s3likehost http://s3like.com:9000 notsecret_access_key notsecret_secret_key;
+                /usr/bin/mc mb s3likehost/piggy-bucket;
+                /usr/bin/mc policy public s3likehost/piggy-bucket;
+                exit 0;
+            "
