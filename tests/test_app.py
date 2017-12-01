@@ -9,7 +9,8 @@ from datetime import datetime
 from hashlib import md5
 
 from minio import Minio
-from minio.error import ResponseError
+from minio.error import MinioError, BucketAlreadyOwnedByYou
+from minio.policy import Policy
 import redis
 import jwt
 
@@ -131,13 +132,17 @@ class PiggyStoreTestCase(unittest.TestCase):
         )
 
     def setUp(self):
-        self.cli = Navigator(create_app(config).test_client())
+        miniocli = self.__class__._miniocli
+        bucket_name = config['storage']['files']['params']['bucket']
 
         try:
-            self.__class__._miniocli.make_bucket(config['storage']['files']['params']['bucket'])
-        except ResponseError as e:
-            if e.code != 'BucketAlreadyOwnedByYou':
+            miniocli.make_bucket(bucket_name)
+        except MinioError as e:
+            if not isinstance(e, BucketAlreadyOwnedByYou):
                 raise e
+
+        miniocli.set_bucket_policy(bucket_name, '', Policy.READ_WRITE)
+        self.cli = Navigator(create_app(config).test_client())
 
     def tearDown(self):
         self.__class__._rediscli.flushdb()

@@ -3,8 +3,14 @@ from datetime import timedelta
 
 from minio import Minio
 from minio.error import NoSuchKey
+from minio.policy import Policy
 
-from piggy_store.exceptions import FileExistsError, MultipleFilesRemoveError
+from piggy_store.exceptions import (
+    FileExistsError,
+    MultipleFilesRemoveError,
+    BucketDoesNotExistError,
+    BucketPermissionsError
+)
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.storage.files.storage import Storage as BaseStorage
 
@@ -24,6 +30,13 @@ class Storage(BaseStorage):
             secure=self.opts['secure'],
             region=self.opts['region']
         )
+
+    def check_bucket(self):
+        if not self.client.bucket_exists(self.bucket):
+            raise BucketDoesNotExistError(self.bucket)
+
+        if self.client.get_bucket_policy(self.bucket) is not Policy.READ_WRITE:
+            raise BucketPermissionsError()
 
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(

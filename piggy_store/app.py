@@ -5,6 +5,7 @@ import logging
 
 from piggy_store.controller import blueprint
 from piggy_store.exception_handlers import register_default_exceptions
+from piggy_store.storage.files import access_admin_storage
 
 sentry = Sentry()
 
@@ -16,8 +17,9 @@ def add_preflight_request_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'HEAD, OPTIONS, GET, POST, PUT, DELETE'
     return response
 
-
 def create_app(config):
+    access_admin_storage().check_bucket()
+
     app = Flask(__name__)
     app.config['TRAP_HTTP_EXCEPTIONS'] = True
     app.config['MAX_CONTENT_LENGTH'] = config['uploads']['max_content_length']

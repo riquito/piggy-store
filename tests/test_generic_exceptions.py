@@ -14,6 +14,10 @@ config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.
 if not config:
     config = load_config(config_path)
 
+access_admin_storage_patcher = patch('piggy_store.app.access_admin_storage',
+    **{'check_bucket.return_value': None}
+)
+access_admin_storage_patcher.start()
 
 @pytest.mark.parametrize('content_type', [
     'application/json',
