@@ -9,7 +9,7 @@ from piggy_store.exceptions import (
     FileExistsError,
     MultipleFilesRemoveError,
     BucketDoesNotExistError,
-    BucketPermissionsError
+    BucketPolicyError
 )
 from piggy_store.storage.files.file_entity import FileDTO
 from piggy_store.storage.files.storage import Storage as BaseStorage
@@ -36,7 +36,7 @@ class Storage(BaseStorage):
             raise BucketDoesNotExistError(self.bucket)
 
         if self.client.get_bucket_policy(self.bucket) is not Policy.READ_WRITE:
-            raise BucketPermissionsError()
+            raise BucketPolicyError()
 
     def _get_temporary_url(self, object_name):
         return self.client.presigned_get_object(

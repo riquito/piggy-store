@@ -117,6 +117,6 @@ class BucketDoesNotExistError(PiggyStoreError):
         super().__init__(self.CODE, self.MESSAGE.format(bucketname))
 
 
-class BucketPermissionsError(PiggyStoreError):
+class BucketPolicyError(PiggyStoreError):
     CODE = 1016
     MESSAGE = 'The configured bucket does not allow either upload or download'
