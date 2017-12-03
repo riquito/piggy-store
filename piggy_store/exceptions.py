@@ -107,3 +107,24 @@ class UserNotAllowedError(PiggyStoreError):
 
     def __init__(self, username):
         super().__init__(self.CODE, self.MESSAGE.format(username))
+
+
+class BucketDoesNotExistError(PiggyStoreError):
+    CODE = 1015
+    MESSAGE = 'The configured bucket does not exist: {}'
+
+    def __init__(self, bucketname):
+        super().__init__(self.CODE, self.MESSAGE.format(bucketname))
+
+
+class BucketPolicyError(PiggyStoreError):
+    CODE = 1016
+    MESSAGE = 'The configured bucket does not allow either upload or download'
+
+class BucketAccessDeniedError(PiggyStoreError):
+    CODE = 1017
+    MESSAGE = 'The access to the bucket is denied'
+
+class BucketAccessTimeoutError(PiggyStoreError):
+    CODE = 1018
+    MESSAGE = 'Request timed out when trying to access the bucket'
