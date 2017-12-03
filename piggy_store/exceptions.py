@@ -120,3 +120,7 @@ class BucketDoesNotExistError(PiggyStoreError):
 class BucketPolicyError(PiggyStoreError):
     CODE = 1016
     MESSAGE = 'The configured bucket does not allow either upload or download'
+
+class BucketAccessDeniedError(PiggyStoreError):
+    CODE = 1017
+    MESSAGE = 'The access to the bucket is denied'

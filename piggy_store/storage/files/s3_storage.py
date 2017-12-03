@@ -2,12 +2,13 @@ from io import BytesIO
 from datetime import timedelta
 
 from minio import Minio
-from minio.error import NoSuchKey
+from minio.error import NoSuchKey, AccessDenied
 from minio.policy import Policy
 
 from piggy_store.exceptions import (
     FileExistsError,
     MultipleFilesRemoveError,
+    BucketAccessDeniedError,
     BucketDoesNotExistError,
     BucketPolicyError
 )
@@ -32,8 +33,11 @@ class Storage(BaseStorage):
         )
 
     def check_bucket(self):
-        if not self.client.bucket_exists(self.bucket):
-            raise BucketDoesNotExistError(self.bucket)
+        try:
+            if not self.client.bucket_exists(self.bucket):
+                raise BucketDoesNotExistError(self.bucket)
+        except AccessDenied:
+            raise BucketAccessDeniedError()
 
         if self.client.get_bucket_policy(self.bucket) is not Policy.READ_WRITE:
             raise BucketPolicyError()
