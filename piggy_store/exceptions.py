@@ -124,3 +124,7 @@ class BucketPolicyError(PiggyStoreError):
 class BucketAccessDeniedError(PiggyStoreError):
     CODE = 1017
     MESSAGE = 'The access to the bucket is denied'
+
+class BucketAccessTimeoutError(PiggyStoreError):
+    CODE = 1018
+    MESSAGE = 'Request timed out when trying to access the bucket'
