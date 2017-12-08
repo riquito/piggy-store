@@ -1,6 +1,7 @@
 import re
 
 from piggy_store.exceptions import (
+    TokenInvalidError,
     UsernameError,
     FieldRequiredError,
     FieldTypeError,
@@ -55,44 +56,22 @@ def auth_user_answer_challenge_validator(payload):
     )
 
 
-def list_user_files_validator(payload):
-    _validate_has_attrs(payload, ['jwt'])
-    _validate_is_string('jwt', payload['jwt'])
-
-    return dict(
-        jwt=payload['jwt']
-    )
-
-
-def delete_user_validator(payload):
-    _validate_has_attrs(payload, ['jwt'])
-    _validate_is_string('jwt', payload['jwt'])
-
-    return dict(
-        jwt=payload['jwt']
-    )
-
-
 def request_upload_url_validator(payload):
-    _validate_has_attrs(payload, ['jwt', 'filename'])
-    _validate_is_string('jwt', payload['jwt'])
+    _validate_has_attrs(payload, ['filename'])
     _validate_is_string('filename', payload['filename'])
     _validate_is_not_empty('filename', payload['filename'])
 
     return dict(
-        jwt=payload['jwt'],
         filename=payload['filename']
     )
 
 
 def file_delete_validator(payload):
-    _validate_has_attrs(payload, ['jwt', 'filename'])
-    _validate_is_string('jwt', payload['jwt'])
+    _validate_has_attrs(payload, ['filename'])
     _validate_is_string('filename', payload['filename'])
     _validate_is_not_empty('filename', payload['filename'])
 
     return dict(
-        jwt=payload['jwt'],
         filename=payload['filename']
     )
 

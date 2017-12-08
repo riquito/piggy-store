@@ -1,5 +1,6 @@
 from hmac import compare_digest
 from datetime import datetime, timedelta
+import re
 import jwt
 
 from piggy_store.config import config
@@ -46,3 +47,11 @@ def decode_auth_token(raw_token):
         raise TokenInvalidError()
     except KeyError:
         raise TokenInvalidError()
+
+
+def assert_is_valid_authorization_header(header):
+    if not re.match('^Bearer [a-zA-Z0-9/+~_.-]+=*$', header):
+        raise TokenInvalidError()
+
+def get_access_token_from_authorization_header(header):
+    return header.split(' ')[1]
