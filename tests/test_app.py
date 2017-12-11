@@ -62,11 +62,12 @@ class Navigator:
             'answer': answer
         }), content_type='application/json')
 
-    def request_upload_url(self, jwt, filename=DEFAULT_FILENAME):
+    def request_upload_url(self, token, filename=DEFAULT_FILENAME):
         return self.cli.post('/file/request-upload-url', data=json.dumps({
-            'jwt': jwt,
             'filename': filename,
-        }), content_type='application/json')
+        }), headers={
+            'Authorization': 'Bearer ' + token
+        }, content_type='application/json')
 
     def get_upload_file_request(self, url, file_content):
         content_md5 = base64.b64encode(md5(file_content).digest())
@@ -95,20 +96,21 @@ class Navigator:
             f.read()
 
     def list_files(self, token):
-        return self.cli.get('/files/', query_string = {
-            'jwt': token
+        return self.cli.get('/files/', headers = {
+            'Authorization': 'Bearer ' + token
         }, content_type='application/json')
 
     def delete_file(self, token, filename):
         return self.cli.delete('/file/delete', data=json.dumps({
-            'jwt': token,
             'filename': filename
-        }), content_type='application/json')
+        }), headers = {
+            'Authorization': 'Bearer ' + token
+        },content_type='application/json')
 
     def delete_user(self, token):
-        return self.cli.delete('/user/', data=json.dumps({
-            'jwt': token,
-        }), content_type='application/json')
+        return self.cli.delete('/user/', headers={
+            'Authorization': 'Bearer ' + token
+        }, content_type='application/json')
 
 
 class PiggyStoreTestCase(unittest.TestCase):
@@ -663,7 +665,7 @@ class PiggyStoreTestCase(unittest.TestCase):
         decoded_token = jwt.decode(token, config['secret'], algorithms=['HS256'])
         malformed_token = jwt.encode({}, config['secret'], algorithm='HS256')
 
-        r = self.cli.list_files(malformed_token)
+        r = self.cli.list_files(malformed_token.decode('utf-8'))
         data = r.data
         assert r.status_code == 409
         decoded_data = json.loads(r.data.decode('utf-8'))
@@ -682,7 +684,7 @@ class PiggyStoreTestCase(unittest.TestCase):
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
 
-        malformed_token = 'bogus token'
+        malformed_token = 'bogus-token'
 
         r = self.cli.list_files(malformed_token)
         data = r.data

@@ -1,25 +1,38 @@
 from flask import Blueprint, abort, request, url_for
 from flask_json import FlaskJSON, as_json
 from werkzeug.local import LocalProxy
+from functools import wraps
 
 from piggy_store.storage.cache import get_cache_storage
 from piggy_store.storage.user_entity import User
 from piggy_store.validators import (
-    delete_user_validator,
     new_user_validator,
     auth_user_request_challenge_validator,
     auth_user_answer_challenge_validator,
-    list_user_files_validator,
     request_upload_url_validator,
     file_delete_validator
 )
-from piggy_store.authentication import generate_auth_token, decode_auth_token
+from piggy_store.authentication import (
+    generate_auth_token,
+    decode_auth_token,
+    assert_is_valid_authorization_header,
+    get_access_token_from_authorization_header
+)
 from piggy_store.storage.cache import get_cache_storage
 from piggy_store.exceptions import UserExistsError, ChallengeMismatchError
 
 bp = blueprint = Blueprint('controller', __name__)
 db = LocalProxy(get_cache_storage)
 
+def authentication(func):
+    @wraps(func)
+    def pass_valid_token(*args, **kwargs):
+        authorization_header = request.headers.get('Authorization', '')
+        assert_is_valid_authorization_header(authorization_header)
+        token_encoded = get_access_token_from_authorization_header(authorization_header)
+        token = decode_auth_token(token_encoded)
+        return func(token, *args, **kwargs)
+    return pass_valid_token
 
 @bp.route('/', methods=['GET'])
 @as_json
@@ -34,10 +47,8 @@ def root():
 
 @bp.route('/files/', methods=['GET'])
 @as_json
-def list_user_files():
-    unsafe_payload = request.args
-    payload = list_user_files_validator(unsafe_payload)
-    token = decode_auth_token(payload['jwt'])
+@authentication
+def list_user_files(token):
     user = db.find_user_by_username(token.username)
     files = db.get_user_files(user)
 
@@ -76,10 +87,8 @@ def new_user():
 
 @bp.route('/user/', methods=['DELETE'])
 @as_json
-def delete_user():
-    unsafe_payload = request.get_json() or {}
-    payload = delete_user_validator(unsafe_payload)
-    token = decode_auth_token(payload['jwt'])
+@authentication
+def delete_user(token):
     user = db.find_user_by_username(token.username)
     db.remove_user(user)
 
@@ -132,10 +141,10 @@ def auth_user_answer_challenge():
 
 @bp.route('/file/delete', methods=['DELETE'])
 @as_json
-def file_delete():
+@authentication
+def file_delete(token):
     unsafe_payload = request.get_json() or {}
     payload = file_delete_validator(unsafe_payload)
-    token = decode_auth_token(payload['jwt'])
     user = db.find_user_by_username(token.username)
     db.remove_file_by_filename(user, payload['filename'])
     return {}
@@ -143,10 +152,10 @@ def file_delete():
 
 @bp.route('/file/request-upload-url', methods=['POST'])
 @as_json
-def request_upload_url():
+@authentication
+def request_upload_url(token):
     unsafe_payload = request.get_json() or {}
     payload = request_upload_url_validator(unsafe_payload)
-    token = decode_auth_token(payload['jwt'])
     user = db.find_user_by_username(token.username)
     upload_url = db.get_presigned_upload_url(user, payload['filename'])
 
