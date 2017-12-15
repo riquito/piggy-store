@@ -679,7 +679,7 @@ class PiggyStoreTestCase(unittest.TestCase):
             }
         }
 
-    def test_list_files_token_malformed_not_jwt(self):
+    def test_list_files_token_malformed(self):
         r = self.cli.create_user_foo()
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
@@ -857,19 +857,13 @@ class PiggyStoreTestCase(unittest.TestCase):
 
         # the old token foo should not be valid anymore
         r = self.cli.list_files(token_foo)
-        assert r.status_code == 401
+        assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
         {
-            "status": 401,
-            "error": {
-                "code": 1005,
-                "message": "The user does not exist"
-            },
-            "links": {
-                "create_user": {
-                    "href": "http://localhost/user/",
-                    "rel": "user"
-                }
+            'status': 409,
+            'error': {
+                'code': 1007,
+                'message': 'The token has expired'
             }
         }
 
@@ -922,19 +916,13 @@ class PiggyStoreTestCase(unittest.TestCase):
 
         # reuse the now obsolete token to try to delete the user again
         r = self.cli.delete_user(token_foo)
-        assert r.status_code == 401
+        assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
         {
-            "status": 401,
-            "error": {
-                "code": 1005,
-                "message": "The user does not exist"
-            },
-            "links": {
-                "create_user": {
-                    "href": "http://localhost/user/",
-                    "rel": "user"
-                }
+            'status': 409,
+            'error': {
+                'code': 1007,
+                'message': 'The token has expired'
             }
         }
 

@@ -1,3 +1,4 @@
+import os
 from hmac import compare_digest
 from datetime import datetime, timedelta
 import re
@@ -16,37 +17,7 @@ class Token:
 
 
 def generate_auth_token(user):
-    exp_after_n_hours = 1
-    now = datetime.utcnow()
-    return jwt.encode(
-        {
-            'username': user.username,
-            'exp': now + timedelta(hours=exp_after_n_hours),
-            'iat': now
-        },
-        config['secret'],
-        algorithm='HS256'
-    ).decode('utf-8')
-
-
-def decode_auth_token(raw_token):
-    try:
-        token_payload = jwt.decode(
-            raw_token,
-            config['secret'],
-            algorithms=['HS256']
-        )
-
-        return Token(
-            username=token_payload['username']
-        )
-
-    except jwt.ExpiredSignatureError:
-        raise TokenExpiredError()
-    except jwt.exceptions.DecodeError:
-        raise TokenInvalidError()
-    except KeyError:
-        raise TokenInvalidError()
+    return os.urandom(32).hex()
 
 
 def assert_is_valid_authorization_header(header):
