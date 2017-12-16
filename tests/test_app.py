@@ -200,8 +200,6 @@ class TestPiggyStoreApp:
         response = json.loads(data.decode('utf-8'))
         if response.get('content') and response['content'].get('token'):
             token = response['content']['token']
-            # try to decode the token, at least we make sure that it's valid
-            jwt.decode(token, config['secret'], algorithms=['HS256'])
             response['content']['token'] = self.DUMMY_TOKEN
 
         return response
