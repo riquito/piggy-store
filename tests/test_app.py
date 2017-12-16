@@ -638,14 +638,19 @@ class TestPiggyStoreApp:
         }
 
     def test_token_expired(self, cli):
-        with patch('piggy_store.authentication.datetime') as mock_datetime:
-            mock_datetime.utcnow.return_value = datetime(2017, 1, 1)
+        from piggy_store.storage.cache import get_token_storage
 
+        singletonAuthTokenStorage = get_token_storage()
+        previousTimeout = singletonAuthTokenStorage.timeout
+        singletonAuthTokenStorage.timeout = 1
+
+        try:
             r = cli.create_user_foo()
             assert r.status_code == 200
             decoded_data = json.loads(r.data.decode('utf-8'))
             expired_token = decoded_data['content']['token']
 
+            import time; time.sleep(1)
             r = cli.list_files(expired_token)
             data = r.data
             assert r.status_code == 409
@@ -659,6 +664,8 @@ class TestPiggyStoreApp:
                     'message': 'The token has expired'
                 }
             }
+        finally:
+            singletonAuthTokenStorage.timeout = previousTimeout
 
     def test_token_malformed_missing_key(self, cli):
         r = cli.create_user_foo()
