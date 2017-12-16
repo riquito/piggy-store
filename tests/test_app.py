@@ -667,29 +667,6 @@ class TestPiggyStoreApp:
         finally:
             singletonAuthTokenStorage.timeout = previousTimeout
 
-    def test_token_malformed_missing_key(self, cli):
-        r = cli.create_user_foo()
-        assert r.status_code == 200
-        decoded_data = json.loads(r.data.decode('utf-8'))
-        token = decoded_data['content']['token']
-
-        decoded_token = jwt.decode(token, config['secret'], algorithms=['HS256'])
-        malformed_token = jwt.encode({}, config['secret'], algorithm='HS256')
-
-        r = self.cli.list_files(malformed_token.decode('utf-8'))
-        data = r.data
-        assert r.status_code == 409
-        decoded_data = json.loads(r.data.decode('utf-8'))
-
-        assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1008,
-                'message': 'The token is not valid'
-            }
-        }
-
     def test_list_files_token_malformed(self, cli):
         r = cli.create_user_foo()
         assert r.status_code == 200
