@@ -6,6 +6,7 @@ server:
     host: {{ default .Env.PIGGYSTORE__SERVER_HOST "127.0.0.1" }}
     port: {{ default .Env.PIGGYSTORE__SERVER_PORT 5000 }}
     name: {{ default .Env.PIGGYSTORE__SERVER_NAME "localhost" }}
+token_duration_in_hours: 2h
 storage:
     cache:
         module: piggy_store.storage.cache.redis_storage

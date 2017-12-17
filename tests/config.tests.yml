@@ -9,6 +9,7 @@ server:
     port: 5000
     name: localhost
 users_whitelist: ['foo', 'foobar']
+token_duration_in_hours: 2
 storage:
     cache:
         module: piggy_store.storage.cache.redis_storage
