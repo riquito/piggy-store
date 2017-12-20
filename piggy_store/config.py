@@ -94,8 +94,8 @@ def _sanitize_config(config):
         config['storage']['files']['params'].get('download_url_expire_after', '1 day')
     )
 
-    config['authtoken_expire_after'] = _time_delta_from_human_to_timedelta(
-        config['storage']['files']['params'].get('authtoken_expire_after', '2 hours')
+    config['token_duration_in_hours'] = _time_delta_from_human_to_timedelta(
+        config.get('token_duration_in_hours', '2 hours')
     )
 
     return config
