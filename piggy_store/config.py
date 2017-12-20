@@ -62,11 +62,13 @@ def _sanitize_config(config):
     config.setdefault('debug', False)
     config.setdefault('uploads', {})
     config.setdefault('users_whitelist', [])
+    config.setdefault('auth_token_expire_after', '2 hours')
     config['uploads'].setdefault('max_content_length', '1M')
 
     try:
         config['debug']
         config['secret']
+        config['auth_token_expire_after']
         config['uploads']
         config['uploads']['max_content_length']
         config['server']
@@ -94,8 +96,8 @@ def _sanitize_config(config):
         config['storage']['files']['params'].get('download_url_expire_after', '1 day')
     )
 
-    config['authtoken_expire_after'] = _time_delta_from_human_to_timedelta(
-        config['storage']['files']['params'].get('authtoken_expire_after', '2 hours')
+    config['auth_token_expire_after'] = _time_delta_from_human_to_timedelta(
+        config['auth_token_expire_after']
     )
 
     return config

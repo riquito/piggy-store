@@ -36,9 +36,6 @@ class AuthTokenStorage:
             raise TokenInvalidError()
 
     def refresh_user_token(self, username, token):
-        #exp_after_n_hours = 1
-        #now = datetime.utcnow()
-        #timeout = timedelta(hours = exp_after_n_hours)
         return self.conn.setex(self.prefix + username, self.timeout, token)
 
     def remove_user_token(self, username):
