@@ -9,7 +9,7 @@ server:
     host: {{ getv "/app/piggy/host" "0.0.0.0" }}
     port: {{ getv "/app/piggy/port" "5000" }}
     name: {{ getv "/app/piggy/name" "localhost" }}
-token_duration_in_hours: 2h
+auth_token_expire_after: 2h
 storage:
     cache:
         module: piggy_store.storage.cache.redis_storage

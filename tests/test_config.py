@@ -16,6 +16,7 @@ def get_minimal_loadable_config():
         'uploads': {
             'max_content_length': '1MB'
         },
+        'auth_token_expire_after': '2h',
         'server': {
             'host': '',
             'port': 443,
@@ -88,7 +89,7 @@ def test_error_on_missing_keys(config_mod, required_key):
 @pytest.mark.parametrize('defaulted_key', [
     'debug',
     'uploads.max_content_length',
-    'token_duration_in_hours',
+    'auth_token_expire_after',
     'users_whitelist'
 ])
 def test_config_keys_with_defaults(config_mod, defaulted_key):

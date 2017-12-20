@@ -12,5 +12,5 @@ def get_cache_storage():
 def get_token_storage():
     return AuthTokenStorage({
         **config['storage']['cache']['params'],
-        'timeout': config['token_duration_in_hours']
+        'timeout': config['auth_token_expire_after']
     })
