@@ -1,17 +1,29 @@
+import os
 import json
 from datetime import datetime, timedelta
+import base64
 
 from cryptography import fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import redis
 
 from piggy_store.exceptions import (
     TokenInvalidError
 )
 
+kdf = PBKDF2HMAC(
+    algorithm=hashes.SHA256(),
+    length=32,
+    iterations=100000,
+    salt=b'not important in this use case',
+    backend=default_backend()
+)
+
 class AuthTokenStorage:
     __instance = None
     prefix = 'token-'
-    key = fernet.Fernet.generate_key()
 
     def __new__(cls, options, **kwargs):
         if not cls.__instance:
@@ -23,6 +35,7 @@ class AuthTokenStorage:
                 decode_responses=True
             )
             cls.__instance.timeout = options['timeout']
+            cls.__instance.key = base64.urlsafe_b64encode(kdf.derive(options['secret'].encode('utf-8')))
 
         return cls.__instance
 
