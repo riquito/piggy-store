@@ -183,8 +183,8 @@ def request_upload_url(tokenBag):
 def hateoas_auth_user_request_challenge():
     return {
         'request_auth_challenge': {
-            'rel': 'user',
-            'href': url_for('controller.auth_user_answer_challenge', _external=True)
+            'rel': 'auth',
+            'href': url_for('controller.auth_user_request_challenge', _external=True)
         }
     }
 

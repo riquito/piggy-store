@@ -190,7 +190,7 @@ class TestPiggyStoreApp:
                     "rel": "user"
                 },
                 "request_auth_challenge":  {
-                    "href": "http://localhost/user/auth/answer-challenge",
+                    "href": "http://localhost/auth/request-challenge",
                     "rel": "user"
                 }
             }
