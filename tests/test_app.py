@@ -44,10 +44,10 @@ class Navigator:
         qs = {}
         if username:
             qs['username'] = username
-        return self.cli.get('/user/auth/request-challenge', query_string=qs)
+        return self.cli.get('/auth/request-challenge', query_string=qs)
 
     def create_new_user(self, username, challenge, answer):
-        return self.cli.post('/user/', data=json.dumps({
+        return self.cli.post('/users/', data=json.dumps({
             'username': username,
             'challenge': challenge,
             'answer': answer
@@ -57,13 +57,13 @@ class Navigator:
         return self.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, FOO_ANSWER)
 
     def answer_auth_challenge(self, username, answer):
-        return self.cli.post('/user/auth/answer-challenge', data=json.dumps({
+        return self.cli.post('/auth/answer-challenge', data=json.dumps({
             'username': username,
             'answer': answer
         }), content_type='application/json')
 
     def request_upload_url(self, token, filename=DEFAULT_FILENAME):
-        return self.cli.post('/file/request-upload-url', data=json.dumps({
+        return self.cli.post('/files/request-upload-url', data=json.dumps({
             'filename': filename,
         }), headers={
             'Authorization': 'Bearer ' + token
@@ -101,14 +101,14 @@ class Navigator:
         }, content_type='application/json')
 
     def delete_file(self, token, filename):
-        return self.cli.delete('/file/delete', data=json.dumps({
+        return self.cli.delete('/files/', data=json.dumps({
             'filename': filename
         }), headers = {
             'Authorization': 'Bearer ' + token
         },content_type='application/json')
 
     def delete_user(self, token):
-        return self.cli.delete('/user/', headers={
+        return self.cli.delete('/users/', headers={
             'Authorization': 'Bearer ' + token
         }, content_type='application/json')
 
@@ -186,12 +186,12 @@ class TestPiggyStoreApp:
             "status": 200,
             "links":  {
                 "create_user": {
-                    "href": "http://localhost/user/",
+                    "href": "http://localhost/users/",
                     "rel": "user"
                 },
                 "request_auth_challenge":  {
                     "href": "http://localhost/auth/request-challenge",
-                    "rel": "user"
+                    "rel": "auth"
                 }
             }
         }
@@ -221,7 +221,7 @@ class TestPiggyStoreApp:
                     "rel": "file"
                 },
                 "request_upload_url": {
-                    "href": "http://localhost/file/request-upload-url",
+                    "href": "http://localhost/files/request-upload-url",
                     "rel": "file"
                 }
             },
@@ -285,7 +285,7 @@ class TestPiggyStoreApp:
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost/user/",
+                    "href": "http://localhost/users/",
                     "rel": "user"
                 }
             }
@@ -313,12 +313,12 @@ class TestPiggyStoreApp:
             },
             'links': {
                 'answer_auth_challenge': {
-                    'rel': 'user',
-                    'href': 'http://localhost/user/auth/answer-challenge'
+                    'rel': 'auth',
+                    'href': 'http://localhost/auth/answer-challenge'
                 },
                 'create_user': {
                     'rel': 'user',
-                    'href': 'http://localhost/user/'
+                    'href': 'http://localhost/users/'
                 }
             }
         }
@@ -339,7 +339,7 @@ class TestPiggyStoreApp:
             'links': {
                 'request_upload_url': {
                     'rel': 'file',
-                    'href': 'http://localhost/file/request-upload-url'
+                    'href': 'http://localhost/files/request-upload-url'
                 },
                 'files_list': {
                     'rel': 'file',
@@ -487,7 +487,7 @@ class TestPiggyStoreApp:
                         },
                         'delete': {
                             'rel': 'file',
-                            'href': 'http://localhost/file/delete'
+                            'href': 'http://localhost/files/'
                         }
                     },
                     'content': {
@@ -505,7 +505,7 @@ class TestPiggyStoreApp:
                         },
                         'delete': {
                             'rel': 'file',
-                            'href': 'http://localhost/file/delete'
+                            'href': 'http://localhost/files/'
                         }
                     },
                     'content': {
@@ -568,7 +568,7 @@ class TestPiggyStoreApp:
                                 },
                                 'delete': {
                                     'rel': 'file',
-                                    'href': 'http://localhost/file/delete'
+                                    'href': 'http://localhost/files/'
                                 }
                             },
                             'content': {
@@ -618,7 +618,7 @@ class TestPiggyStoreApp:
                         },
                         'delete': {
                                 'rel': 'file',
-                                'href': 'http://localhost/file/delete'
+                                'href': 'http://localhost/files/'
                         }
                     },
                     'content': {
@@ -818,7 +818,7 @@ class TestPiggyStoreApp:
             "status": 200,
             "links": {
                 "create_user": {
-                    "href": "http://localhost/user/",
+                    "href": "http://localhost/users/",
                     "rel": "user"
                 }
             }
@@ -842,7 +842,7 @@ class TestPiggyStoreApp:
             },
             "links": {
                 "create_user": {
-                    "href": "http://localhost/user/",
+                    "href": "http://localhost/users/",
                     "rel": "user"
                 }
             }
