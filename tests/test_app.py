@@ -375,6 +375,18 @@ class TestPiggyStoreApp:
         r = cli.answer_auth_challenge(FOO_USERNAME, FOO_ANSWER)
         assert r.status_code == 200
 
+    def test_auth_user_answer_challeng_return_a_correct_token(self, cli):
+        r = cli.create_user_foo()
+        assert r.status_code == 200
+
+        r = cli.answer_auth_challenge(FOO_USERNAME, FOO_ANSWER)
+        assert r.status_code == 200
+        decoded_data = json.loads(r.data.decode('utf-8'))
+        token = decoded_data['content']['token']
+
+        r = cli.list_files(token)
+        assert r.status_code == 200
+
     def test_request_upload_url(self, cli):
         r = cli.create_user_foo()
         assert r.status_code == 200
