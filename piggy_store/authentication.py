@@ -16,10 +16,6 @@ class Token:
         self.username = username
 
 
-def generate_auth_token(user):
-    return os.urandom(32).hex()
-
-
 def assert_is_valid_authorization_header(header):
     if not re.match('^Bearer [a-zA-Z0-9/+~_.-]+=*$', header):
         raise TokenInvalidError()

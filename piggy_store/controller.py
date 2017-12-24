@@ -13,7 +13,6 @@ from piggy_store.validators import (
     file_delete_validator
 )
 from piggy_store.authentication import (
-    generate_auth_token,
     assert_is_valid_authorization_header,
     get_access_token_from_authorization_header
 )
@@ -137,9 +136,12 @@ def auth_user_answer_challenge():
     if payload['answer'] != correct_answer:
         raise ChallengeMismatchError()
 
+    token = tokenDb.generate_token({ 'username': user.username })
+    tokenDb.refresh_user_token(user.username, token)
+
     return {
         'content': {
-            'token': generate_auth_token(user)
+            'token': token
         },
         'links': {
             **hateoas_list_user_files(),
