@@ -70,7 +70,7 @@ def list_user_files(tokenBag):
     }
 
 
-@bp.route('/user/', methods=['POST'])
+@bp.route('/users/', methods=['POST'])
 @as_json
 def new_user():
     unsafe_payload = request.get_json() or {}
@@ -92,7 +92,7 @@ def new_user():
     }
 
 
-@bp.route('/user/', methods=['DELETE'])
+@bp.route('/users/', methods=['DELETE'])
 @as_json
 @authentication
 def delete_user(tokenBag):
@@ -107,7 +107,7 @@ def delete_user(tokenBag):
     }
 
 
-@bp.route('/user/auth/request-challenge', methods=['GET'])
+@bp.route('/auth/request-challenge', methods=['GET'])
 @as_json
 def auth_user_request_challenge():
     unsafe_payload = request.args
@@ -125,7 +125,7 @@ def auth_user_request_challenge():
     }
 
 
-@bp.route('/user/auth/answer-challenge', methods=['POST'])
+@bp.route('/auth/answer-challenge', methods=['POST'])
 @as_json
 def auth_user_answer_challenge():
     unsafe_payload = request.get_json() or {}
@@ -150,7 +150,7 @@ def auth_user_answer_challenge():
     }
 
 
-@bp.route('/file/delete', methods=['DELETE'])
+@bp.route('/files/', methods=['DELETE'])
 @as_json
 @authentication
 def file_delete(tokenBag):
@@ -161,7 +161,7 @@ def file_delete(tokenBag):
     return {}
 
 
-@bp.route('/file/request-upload-url', methods=['POST'])
+@bp.route('/files/request-upload-url', methods=['POST'])
 @as_json
 @authentication
 def request_upload_url(tokenBag):
@@ -183,8 +183,8 @@ def request_upload_url(tokenBag):
 def hateoas_auth_user_request_challenge():
     return {
         'request_auth_challenge': {
-            'rel': 'user',
-            'href': url_for('controller.auth_user_answer_challenge', _external=True)
+            'rel': 'auth',
+            'href': url_for('controller.auth_user_request_challenge', _external=True)
         }
     }
 
@@ -192,7 +192,7 @@ def hateoas_auth_user_request_challenge():
 def hateoas_auth_user_answer_challenge():
     return {
         'answer_auth_challenge': {
-            'rel': 'user',
+            'rel': 'auth',
             'href': url_for('controller.auth_user_answer_challenge', _external=True)
         }
     }

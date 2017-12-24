@@ -6,6 +6,18 @@ Store files easily
 [![Build Status](https://api.travis-ci.org/riquito/piggy-store.svg?branch=master)](https://travis-ci.org/riquito/piggy-store)
 [![Coverage Status](https://coveralls.io/repos/github/riquito/piggy-store/badge.svg?branch=master)](https://coveralls.io/github/riquito/piggy-store?branch=master)
 
+API Documentation
+-----------------
+
+The api documentation can be [found here](https://riquito.github.io/piggy-store/)
+
+To build locally the documentation you'll have to run
+
+```
+yarn run install
+yarn run doc
+```
+
 Install
 -------
 
@@ -31,7 +43,7 @@ python piggy-store.py
 or run the application with uwsgi
 
 ```
-uwsgi --need-app --socket 0.0.0.0:5000 --protocol=http -w piggy-store --python-autoreload=1 
+uwsgi --need-app --socket 0.0.0.0:5000 --protocol=http -w piggy-store --python-autoreload=1
 ```
 
 Try it with docker
