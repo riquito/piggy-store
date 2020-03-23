@@ -15,6 +15,7 @@ try:
     application = create_app(config)
 except (BucketAccessDeniedError, BucketAccessTimeoutError) as e:
     print(e.message, file=sys.stderr)
+    print("Review the content of config.yml first, then your s3 permissions.")
     exit(e.code)
 
 if __name__ == "__main__":
