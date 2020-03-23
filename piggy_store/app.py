@@ -1,13 +1,11 @@
 from flask import Flask
 from flask_json import FlaskJSON
-from raven.contrib.flask import Sentry
-import logging
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from piggy_store.controller import blueprint
 from piggy_store.exception_handlers import register_default_exceptions
 from piggy_store.storage.files import access_admin_storage
-
-sentry = Sentry()
 
 
 def add_preflight_request_headers(response):
@@ -24,7 +22,6 @@ def create_app(config):
     app.config['TRAP_HTTP_EXCEPTIONS'] = True
     app.config['MAX_CONTENT_LENGTH'] = config['uploads']['max_content_length']
     app.config['DEBUG'] = config['debug']
-    app.config['SENTRY_CONFIG'] = config['sentry']
 
     app.register_blueprint(blueprint)
     app.after_request(add_preflight_request_headers)
@@ -35,10 +32,8 @@ def create_app(config):
 
     FlaskJSON(app)
 
-    sentry.init_app(app,
-                    dsn=config['sentry']['dsn'],
-                    logging=config['sentry']['dsn'] and not config['debug'],
-                    level=logging.ERROR
+    sentry_sdk.init(
+        config['sentry']['dsn'],
+        integrations=[FlaskIntegration()],
     )
-
     return app
