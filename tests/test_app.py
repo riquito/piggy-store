@@ -819,7 +819,6 @@ class TestPiggyStoreApp:
 
     def test_create_new_user_not_whitelisted(self, cli):
         r = cli.create_new_user('nobodywhantsme', FOO_ENC_CHALLENGE, FOO_ANSWER)
-        print(r.data)
         assert r.status_code == 403
 
         decoded_data = json.loads(r.data.decode('utf-8'))
