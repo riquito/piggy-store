@@ -50,7 +50,7 @@ def load(config_path):
         raise ConfigError('Loading configuration twice may lead to unexpected behaviour')
 
     with open(config_path) as fp:
-        config.update(yaml.load(fp))
+        config.update(yaml.load(fp,Loader=yaml.SafeLoader))
 
     config.update(_sanitize_config(config))
     return config
