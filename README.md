@@ -18,21 +18,29 @@ yarn run install
 yarn run doc
 ```
 
-Install
--------
+Setup
+-----
 
 ```
-pip install -r requirements.lock
-```
+# Run bootstrap.sh
+# It will create a local virtualenv with the necessary
+# dependencies in the project folder (avoiding pollution).
+./bootstrap.sh
 
-If you don't have uwsgi installed you may want to add it
+# Enter the virtualenv
+. .env/bin/activate
 
-```
-pip install -r requirements.lock -r requirements.uwsgi.lock
+# Install the project dependencies
+.poetry/bin/poetry install
 ```
 
 Run
 ---
+
+Enter the virtualenv
+```
+. .env/bin/activate
+```
 
 You can either use flask directly
 
@@ -44,6 +52,27 @@ or run the application with uwsgi
 
 ```
 uwsgi --need-app --socket 0.0.0.0:5000 --protocol=http -w piggy-store --python-autoreload=1
+```
+
+Run tests
+---------
+
+You need to run minio and redis with test configurations
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up s3_like user_db
+```
+
+Then just run `tox`
+
+```
+tox
+```
+
+If you want to run a single test, perhaps with more output...
+
+```
+tox -- -s tests/test_app.py::PiggyStoreTestCase --showlocals -vv
 ```
 
 Try it with docker
@@ -68,25 +97,4 @@ Run the project
 
 ```
 docker-compose run
-```
-
-Run tests
----------
-
-You need to run minio and redis with test configurations
-
-```
-docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up s3_like user_db
-```
-
-Then just run `tox`
-
-```
-tox
-```
-
-If a test fails and you want a more verbose output, you could run something like
-
-```
-tox -- -s tests/test_app.py::PiggyStoreTestCase --showlocals -vv
 ```
