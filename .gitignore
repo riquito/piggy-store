@@ -9,3 +9,4 @@ config.yml
 .coverage
 .env
 .cache
+.poetry.toml
