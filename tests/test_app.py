@@ -10,7 +10,6 @@ from hashlib import md5
 
 from minio import Minio
 from minio.error import MinioError, BucketAlreadyOwnedByYou
-from minio.policy import Policy
 import redis
 import pytest
 
@@ -136,7 +135,47 @@ def bucket_init(bucket_name):
         if not isinstance(e, BucketAlreadyOwnedByYou):
             raise e
 
-    miniocli.set_bucket_policy(bucket_name, '', Policy.READ_WRITE)
+    read_write_policy = json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Action": ["s3:GetBucketLocation"],
+                "Sid": "",
+                "Resource": ["arn:aws:s3:::%s" % bucket_name],
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"}
+            },
+            {
+                "Action": ["s3:ListBucket"],
+                "Sid": "",
+                "Resource": ["arn:aws:s3:::%s" % bucket_name],
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"}
+            },
+            {
+                "Action": ["s3:ListBucketMultipartUploads"],
+                "Sid": "",
+                "Resource": ["arn:aws:s3:::%s" % bucket_name],
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"}
+            },
+            {
+                "Action": [
+                    "s3:ListMultipartUploadParts",
+                    "s3:GetObject",
+                    "s3:AbortMultipartUpload",
+                    "s3:DeleteObject",
+                    "s3:PutObject"
+                ],
+                "Sid": "",
+                "Resource": ["arn:aws:s3:::%s/*" % bucket_name],
+                "Effect": "Allow",
+                "Principal": {"AWS": "*"}
+            }
+        ]
+    })
+
+    miniocli.set_bucket_policy(bucket_name, read_write_policy)
 
 def bucket_teardown():
     rediscli.flushdb()
