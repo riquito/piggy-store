@@ -9,4 +9,6 @@ config.yml
 .coverage
 .env
 .cache
-.poetry.toml
+poetry.toml
+piggy_store.egg-info/
+node_modules/
