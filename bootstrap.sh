@@ -1,6 +1,12 @@
+#!/bin/bash
+
+set -euo pipefail
+
 ENV_DIR=${PWD}/.env
 LOCAL_BIN=${ENV_DIR}/bin
 POETRY_CACHE_DIR=$PWD/.poetry_cache_dir
+
+export TERM=${TERM:-xterm}
 
 banner() {
     echo $(tput bold)$(tput setaf 2)$*$(tput sgr0)
@@ -19,14 +25,14 @@ export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 banner "Upgrading pip in the virtual environment"
 pip install --upgrade pip
 
+optional_uwsgi=''
+if ! [ -x "$(command -v uwsgi)" ]; then
+    optional_uwsgi=uwsgi
+fi
+
 # Install tools that we want to run from cli
 banner "Installing necessary tools in the virtual environment"
-pip install tox pytest uwsgi poetry
-
-# This may be not necessary once we commit poetry.toml
-banner "Set some poetry config, stored in poetry.toml"
-poetry config --local cache-dir ${POETRY_CACHE_DIR}
-poetry config --local virtualenvs.create false
+pip install tox pytest poetry ${optional_uwsgi}
 
 banner "Ready to go, you can start with"
 banner ". .env/bin/activate # enter the virtual env"
