@@ -8,6 +8,16 @@ POETRY_CACHE_DIR=$PWD/.poetry_cache_dir
 
 export TERM=${TERM:-xterm}
 
+OPT_NO_UWSGI=0
+if [[ "$1" == "--no-uwsgi" ]]; then
+    OPT_NO_UWSGI=1
+fi
+
+optional_uwsgi=''
+if [[ OPT_NO_UWSGI -eq 0 ]] && [[ ! -x $(command -v uwsgi) ]]; then
+    optional_uwsgi=uwsgi
+fi
+
 banner() {
     echo $(tput bold)$(tput setaf 2)$*$(tput sgr0)
 }
@@ -25,14 +35,9 @@ export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 banner "Upgrading pip in the virtual environment"
 pip install --upgrade pip
 
-optional_uwsgi=''
-if ! [ -x "$(command -v uwsgi)" ]; then
-    optional_uwsgi=uwsgi
-fi
-
 # Install tools that we want to run from cli
 banner "Installing necessary tools in the virtual environment"
-pip install tox pytest poetry ${optional_uwsgi}
+pip install wheel tox pytest poetry ${optional_uwsgi}
 
 banner "Ready to go, you can start with"
 banner ". .env/bin/activate # enter the virtual env"
