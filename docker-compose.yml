@@ -1,7 +1,7 @@
 version: '2'
 services:
     web:
-        image: riquito/piggy-store-alpine
+        image: riquito/piggy-store
         expose:
             - "5000"
         ports:

@@ -1,6 +1,22 @@
+#!/bin/bash
+
+set -euo pipefail
+
 ENV_DIR=${PWD}/.env
 LOCAL_BIN=${ENV_DIR}/bin
 POETRY_CACHE_DIR=$PWD/.poetry_cache_dir
+
+export TERM=${TERM:-xterm}
+
+OPT_NO_UWSGI=0
+if [[ "$1" == "--no-uwsgi" ]]; then
+    OPT_NO_UWSGI=1
+fi
+
+optional_uwsgi=''
+if [[ OPT_NO_UWSGI -eq 0 ]] && [[ ! -x $(command -v uwsgi) ]]; then
+    optional_uwsgi=uwsgi
+fi
 
 banner() {
     echo $(tput bold)$(tput setaf 2)$*$(tput sgr0)
@@ -21,12 +37,7 @@ pip install --upgrade pip
 
 # Install tools that we want to run from cli
 banner "Installing necessary tools in the virtual environment"
-pip install tox pytest uwsgi poetry
-
-# This may be not necessary once we commit poetry.toml
-banner "Set some poetry config, stored in poetry.toml"
-poetry config --local cache-dir ${POETRY_CACHE_DIR}
-poetry config --local virtualenvs.create false
+pip install wheel tox pytest poetry ${optional_uwsgi}
 
 banner "Ready to go, you can start with"
 banner ". .env/bin/activate # enter the virtual env"
