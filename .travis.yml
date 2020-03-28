@@ -1,3 +1,4 @@
+dist: travis
 sudo: required
 cache: pip
 language: python
