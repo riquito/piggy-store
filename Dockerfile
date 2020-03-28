@@ -25,17 +25,6 @@ RUN /bin/bash -c '\
 
 FROM ubuntu:20.04
 
-# Create a group and user to run our app
-RUN groupadd -r piggy-user && useradd --no-log-init -r -g piggy-user piggy-user
-
-# Copy source code
-COPY --chown=piggy-user:piggy-user . /app
-
-COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
-
-# Copy pip dependencies
-COPY --chown=piggy-user:piggy-user --from=base /app /app
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
     python3-distutils \
@@ -43,6 +32,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     tzdata \
     uwsgi \
     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
+
+# Create a group and user to run our app
+RUN groupadd -r piggy-user && useradd --no-log-init -r -g piggy-user piggy-user
+
+# Copy source code
+COPY --chown=piggy-user:piggy-user . /app
+
+# Copy pip dependencies
+COPY --chown=piggy-user:piggy-user --from=base /app /app
 
 ENV PATH="/app/.env/bin:${PATH}"
 
