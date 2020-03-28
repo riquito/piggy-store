@@ -22,5 +22,6 @@ before_install:
 install: true
 script:
     - source env_file
+    - export
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml run --no-deps web
 
