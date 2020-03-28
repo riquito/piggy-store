@@ -4,10 +4,6 @@ addons:
       - docker-ce
 dist: travis
 sudo: required
-cache: pip
-language: python
-python:
-    - '3.6'
 services:
     - docker
 before_install:
