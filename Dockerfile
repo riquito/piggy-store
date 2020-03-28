@@ -29,11 +29,13 @@ FROM ubuntu:20.04
 ARG APP_USER=piggy-user
 RUN groupadd -r ${APP_USER} && useradd --no-log-init -r -g ${APP_USER} ${APP_USER}
 
-COPY . /app
+# Copy source code
+COPY --chown=${APP_USER}:${APP_USER} . /app
+
 COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
 
+# Copy pip dependencies
 COPY --chown=${APP_USER}:${APP_USER} --from=base /app /app
-RUN chown -R ${APP_USER}:${APP_USER} /app
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
