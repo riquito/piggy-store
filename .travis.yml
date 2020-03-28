@@ -10,8 +10,17 @@ before_install:
     - ./build-docker-images.sh
     - docker images
     - docker ps -a
+    # export some variables for coveralls
+    - echo export GIT_ID=$(git rev-parse --short=7 HEAD) >> env_file
+    - echo export GIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an') >> env_file
+    - echo export GIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae') >> env_file
+    - echo export GIT_COMMITTER_NAME=$(git log -1 --pretty=format:'%cn') >> env_file
+    - echo export GIT_COMMITTER_EMAIL=$(git log -1 --pretty=format:'%ce') >> env_file
+    - echo export GIT_MESSAGE=$(git log -1 --pretty=format:'%s') >> env_file
+    - echo export GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) >> env_file
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml up -d s3_like user_db
 install: true
 script:
+    - source env_file
     - docker-compose -f docker-compose.yml -f docker-compose.override.test.yml run --no-deps web
 
