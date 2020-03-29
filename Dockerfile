@@ -31,6 +31,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     # with non-interactive is going to be setup for UTC
     tzdata \
     uwsgi \
+    uwsgi-plugin-python3 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
@@ -49,5 +50,5 @@ ENV PATH="/app/.env/bin:${PATH}"
 USER piggy-user
 WORKDIR /app
 
-ENTRYPOINT confd -confdir /app/configs -onetime -backend env && exec /usr/bin/uwsgi -i /tmp/uwsgi.ini
+ENTRYPOINT export APP_REDIS_HOST="$FLY_REDIS_CACHE_URL" && confd -confdir /app/configs -onetime -backend env && exec /usr/bin/uwsgi -i /tmp/uwsgi.ini
 EXPOSE 5000
