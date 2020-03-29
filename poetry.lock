@@ -116,6 +116,22 @@ version = "5.0.4"
 toml = ["toml"]
 
 [[package]]
+category = "dev"
+description = "Show coverage stats online via coveralls.io"
+name = "coveralls"
+optional = false
+python-versions = "*"
+version = "1.11.1"
+
+[package.dependencies]
+coverage = ">=3.6,<6.0"
+docopt = ">=0.6.1"
+requests = ">=1.0.0"
+
+[package.extras]
+yaml = ["PyYAML (>=3.10,<5.3)"]
+
+[[package]]
 category = "main"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 name = "cryptography"
@@ -141,6 +157,14 @@ name = "distlib"
 optional = false
 python-versions = "*"
 version = "0.3.0"
+
+[[package]]
+category = "dev"
+description = "Pythonic argument parser, that will make you smile"
+name = "docopt"
+optional = false
+python-versions = "*"
+version = "0.6.2"
 
 [[package]]
 category = "main"
@@ -372,20 +396,6 @@ pytest = ">=3.6"
 testing = ["fields", "hunter", "process-tests (2.0.2)", "six", "virtualenv"]
 
 [[package]]
-category = "dev"
-description = "Python interface to coveralls.io API\n"
-name = "python-coveralls"
-optional = false
-python-versions = "*"
-version = "2.9.3"
-
-[package.dependencies]
-PyYAML = "*"
-coverage = "*"
-requests = "*"
-six = "*"
-
-[[package]]
 category = "main"
 description = "Extensions to the standard Python datetime module"
 name = "python-dateutil"
@@ -586,7 +596,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "488a64956a3a520762356ff7d9fbbd8bef1c5bfb85af8eeea69da4652df531ac"
+content-hash = "e4fe2659e87cc4535d7b6183f513f823cc5e49fe5cbd25cc7ba349cca24b88dc"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -691,6 +701,10 @@ coverage = [
     {file = "coverage-5.0.4-cp39-cp39-win_amd64.whl", hash = "sha256:4482f69e0701139d0f2c44f3c395d1d1d37abd81bfafbf9b6efbe2542679d892"},
     {file = "coverage-5.0.4.tar.gz", hash = "sha256:1b60a95fc995649464e0cd48cecc8288bac5f4198f21d04b8229dc4097d76823"},
 ]
+coveralls = [
+    {file = "coveralls-1.11.1-py2.py3-none-any.whl", hash = "sha256:4b6bfc2a2a77b890f556bc631e35ba1ac21193c356393b66c84465c06218e135"},
+    {file = "coveralls-1.11.1.tar.gz", hash = "sha256:67188c7ec630c5f708c31552f2bcdac4580e172219897c4136504f14b823132f"},
+]
 cryptography = [
     {file = "cryptography-2.8-cp27-cp27m-macosx_10_6_intel.whl", hash = "sha256:fb81c17e0ebe3358486cd8cc3ad78adbae58af12fc2bf2bc0bb84e8090fa5ce8"},
     {file = "cryptography-2.8-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:44ff04138935882fef7c686878e1c8fd80a723161ad6a98da31e14b7553170c2"},
@@ -716,6 +730,9 @@ cryptography = [
 ]
 distlib = [
     {file = "distlib-0.3.0.zip", hash = "sha256:2e166e231a26b36d6dfe35a48c4464346620f8645ed0ace01ee31822b288de21"},
+]
+docopt = [
+    {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
@@ -824,10 +841,6 @@ pytest = [
 pytest-cov = [
     {file = "pytest-cov-2.8.1.tar.gz", hash = "sha256:cc6742d8bac45070217169f5f72ceee1e0e55b0221f54bcf24845972d3a47f2b"},
     {file = "pytest_cov-2.8.1-py2.py3-none-any.whl", hash = "sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626"},
-]
-python-coveralls = [
-    {file = "python-coveralls-2.9.3.tar.gz", hash = "sha256:bfaf7811e7dc5628e83b6b162962a4e2485dbff184b30e49f380374ed1bcee55"},
-    {file = "python_coveralls-2.9.3-py2.py3-none-any.whl", hash = "sha256:fb0ff49bb1551dac10b06bd55e9790287d898a0f1e2c959802235cae08dd0bff"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.1.tar.gz", hash = "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c"},

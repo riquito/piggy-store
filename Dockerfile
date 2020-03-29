@@ -25,16 +25,6 @@ RUN /bin/bash -c '\
 
 FROM ubuntu:20.04
 
-# Create a group and user to run our app
-ARG APP_USER=piggy-user
-RUN groupadd -r ${APP_USER} && useradd --no-log-init -r -g ${APP_USER} ${APP_USER}
-
-COPY . /app
-COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
-
-COPY --chown=${APP_USER}:${APP_USER} --from=base /app /app
-RUN chown -R ${APP_USER}:${APP_USER} /app
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
     python3-distutils \
@@ -43,9 +33,20 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     uwsgi \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=base /usr/local/bin/confd /usr/local/bin/confd
+
+# Create a group and user to run our app
+RUN groupadd -r piggy-user && useradd --no-log-init -r -g piggy-user piggy-user
+
+# Copy source code
+COPY --chown=piggy-user:piggy-user . /app
+
+# Copy pip dependencies
+COPY --chown=piggy-user:piggy-user --from=base /app /app
+
 ENV PATH="/app/.env/bin:${PATH}"
 
-USER ${APP_USER}
+USER piggy-user
 WORKDIR /app
 
 ENTRYPOINT confd -confdir /app/configs -onetime -backend env && exec /usr/bin/uwsgi -i /tmp/uwsgi.ini

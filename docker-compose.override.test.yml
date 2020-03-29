@@ -12,7 +12,7 @@ services:
             MINIO_SECRET_KEY: test_s3_secret_key
     web:
         image: riquito/piggy-store
-        entrypoint: /usr/bin/tox -e py3-coveralls
+        entrypoint: /app/.env/bin/tox -e py3-coveralls
         environment:
             APP_S3_SECURE: 'false'
             APP_S3_KEY_ACCESS: test_s3_access_key
@@ -24,4 +24,11 @@ services:
             TRAVIS:
             TRAVIS_JOB_ID:
             TRAVIS_BRANCH:
+            GIT_ID:
+            GIT_AUTHOR_NAME:
+            GIT_AUTHOR_EMAIL:
+            GIT_COMMITTER_NAME:
+            GIT_COMMITTER_EMAIL:
+            GIT_MESSAGE:
+            GIT_BRANCH:
 
