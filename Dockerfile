@@ -46,6 +46,7 @@ COPY --chown=piggy-user:piggy-user . /app
 COPY --chown=piggy-user:piggy-user --from=base /app /app
 
 ENV PATH="/app/.env/bin:${PATH}"
+ENV VIRTUAL_ENV="/app/.env"
 
 USER piggy-user
 WORKDIR /app

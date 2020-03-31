@@ -15,3 +15,7 @@ need-app = true
 
 socket = {{ getv "/app/piggy/host" }}:{{ getv "/app/piggy/port" }}
 
+; If VIRTUAL_ENV is set then use its value to specify the virtualenv directory
+if-env = VIRTUAL_ENV
+virtualenv = %(_)
+endif =
