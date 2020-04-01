@@ -2,6 +2,7 @@ from flask import Flask
 from flask_json import FlaskJSON
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 from piggy_store.controller import blueprint
 from piggy_store.exception_handlers import register_default_exceptions
@@ -34,6 +35,6 @@ def create_app(config):
 
     sentry_sdk.init(
         config['sentry']['dsn'],
-        integrations=[FlaskIntegration()],
+        integrations=[FlaskIntegration(), RedisIntegration()],
     )
     return app
