@@ -3,7 +3,6 @@ from flask_json import FlaskJSON, as_json
 from werkzeug.local import LocalProxy
 from functools import wraps
 
-from piggy_store.storage.cache import get_cache_storage
 from piggy_store.storage.user_entity import User
 from piggy_store.validators import (
     new_user_validator,
