@@ -28,12 +28,21 @@ class AuthTokenStorage:
     def __new__(cls, options, **kwargs):
         if not cls.__instance:
             cls.__instance = object.__new__(cls)
-            cls.__instance.conn = redis.StrictRedis(
-                host=options['host'],
-                port=options['port'],
-                db=options['database'],
-                decode_responses=True
-            )
+
+            if options['host'].startswith('redis://'):
+                cls.__instance.conn = redis.from_url(
+                    options['host'],
+                    db=options['database'],
+                    decode_responses=True
+                )
+            else:
+                cls.__instance.conn = redis.Redis(
+                    host=options['host'],
+                    port=options['port'],
+                    db=options['database'],
+                    decode_responses=True
+                )
+
             cls.__instance.timeout = options['timeout']
             cls.__instance.key = base64.urlsafe_b64encode(kdf.derive(options['secret'].encode('utf-8')))
 
