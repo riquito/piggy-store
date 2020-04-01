@@ -51,13 +51,6 @@ class Storage(BaseStorage):
         except Error:
             raise BucketWriteError()
 
-    def _get_temporary_url(self, object_name):
-        return self.client.presigned_get_object(
-            self.bucket,
-            object_name,
-            self.opts['download_url_expire_after']
-        )
-
     def build_file(self, filename, raw_file=None):
         return FileDTO(**(raw_file or {}), object_name=self.user_dir + filename)
 
@@ -69,7 +62,7 @@ class Storage(BaseStorage):
         except NoSuchKey as e:
             content_stream = BytesIO(f.content)
             etag = self.client.put_object(self.bucket, object_name, content_stream, f.size)
-            url = self._get_temporary_url(object_name)
+            url = self.get_presigned_retrieve_url(f)
 
             return f.clone(
                 checksum=etag,
@@ -89,15 +82,23 @@ class Storage(BaseStorage):
                 object_name=obj.object_name,
                 size=obj.size,
                 checksum=obj.etag,
-                url=self._get_temporary_url(obj.object_name)
+                url=self.get_presigned_retrieve_url(obj)
             )
 
     def get_presigned_upload_url(self, f):
-        # presigned Put object URL for an object name, expires in 3 days.
+        # presigned PUT object URL for an object name, expires in 3 days.
         return self.client.presigned_put_object(
             self.bucket,
             f.object_name,
             expires=timedelta(days=3)
+        )
+
+    def get_presigned_retrieve_url(self, f):
+        # presigned GET object URL for an object name.
+        return self.client.presigned_get_object(
+            self.bucket,
+            f.object_name,
+            self.opts['download_url_expire_after']
         )
 
     def remove_file(self, f):

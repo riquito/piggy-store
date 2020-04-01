@@ -100,3 +100,6 @@ class Storage(EasyStorageABC):
 
     def get_presigned_upload_url(self, user, filename):
         return self.es.get_presigned_upload_url(user, filename)
+
+    def get_presigned_retrieve_url(self, user, filename):
+        return self.es.get_presigned_retrieve_url(user, filename)

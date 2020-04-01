@@ -89,3 +89,8 @@ class EasyStorage(EasyStorageABC):
         file_storage = access_user_storage(user.username)
         f = file_storage.build_file(filename)
         return file_storage.get_presigned_upload_url(f)
+
+    def get_presigned_retrieve_url(self, user, filename):
+        file_storage = access_user_storage(user.username)
+        f = file_storage.build_file(filename)
+        return file_storage.get_presigned_retrieve_url(f)

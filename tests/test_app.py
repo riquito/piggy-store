@@ -440,6 +440,10 @@ class TestPiggyStoreApp:
             # remove random X-Amz-* unpredictable items
             href = decoded_data['links']['upload_url']['href']
             decoded_data['links']['upload_url']['href'] = href.split('?', 1)[0]
+
+            # remove random X-Amz-* unpredictable items
+            href = decoded_data['links']['retrieve_url']['href']
+            decoded_data['links']['retrieve_url']['href'] = href.split('?', 1)[0]
         except KeyError:
             pass
 
@@ -448,6 +452,10 @@ class TestPiggyStoreApp:
             'status': 200,
             'links': {
                 'upload_url': {
+                    'rel': 'file',
+                    'href': 'http://s3like.com:9000/bucket-test/users/foo/default-filename'
+                },
+                'retrieve_url': {
                     'rel': 'file',
                     'href': 'http://s3like.com:9000/bucket-test/users/foo/default-filename'
                 }
