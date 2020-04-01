@@ -15,12 +15,20 @@ class Storage(EasyStorageABC):
     def __new__(cls, options, **kwargs):
         if not cls.__instance:
             cls.__instance = object.__new__(cls)
-            cls.conn = redis.StrictRedis(
-                host=options['host'],
-                port=options['port'],
-                db=options['database'],
-                decode_responses=True
-            )
+
+            if options['host'].startswith('redis://'):
+                cls.conn = redis.from_url(
+                    options['host'],
+                    db=options['database'],
+                    decode_responses=True
+                )
+            else:
+                cls.conn = redis.Redis(
+                    host=options['host'],
+                    port=options['port'],
+                    db=options['database'],
+                    decode_responses=True
+                )
 
         return cls.__instance
 
