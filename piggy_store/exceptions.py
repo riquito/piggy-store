@@ -15,9 +15,9 @@ class UserExistsError(PiggyStoreError):
     MESSAGE = 'User already exists'
 
 
-class UsernameError(PiggyStoreError):
+class UsernameFormatError(PiggyStoreError):
     CODE = 1001
-    MESSAGE = 'Username is not valid'
+    MESSAGE = 'Username should contain only ascii letters, numbers, _, -, max 50 chars)'
 
 
 class FieldRequiredError(PiggyStoreError):
@@ -135,3 +135,10 @@ class MaxRequestSizeExceededError(PiggyStoreError):
 
     def __init__(self, max_length, length):
         super().__init__(self.CODE, self.MESSAGE.format(max_length, length))
+
+class FieldMaxLengthError(PiggyStoreError):
+    CODE = 1020
+    MESSAGE = 'Expected {} to be at most {} characters long'
+
+    def __init__(self, field_name, length):
+        super().__init__(self.CODE, self.MESSAGE.format(field_name, length))

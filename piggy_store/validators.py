@@ -2,30 +2,27 @@ import re
 
 from piggy_store.exceptions import (
     TokenInvalidError,
-    UsernameError,
+    UsernameFormatError,
     FieldRequiredError,
     FieldTypeError,
     FieldEmptyError,
     FieldLengthError,
+    FieldMaxLengthError,
     FieldHexError
 )
 
 
 def new_user_validator(payload):
     _validate_has_attrs(payload, ['username', 'challenge', 'answer'])
-    _validate_is_string('username', payload['username'])
+
+    username = _validate_username('username', payload['username'])
+
     _validate_is_string('challenge', payload['challenge'])
     _validate_is_string('answer', payload['answer'])
     _validate_is_exact_length('answer', payload['answer'], 32)
     _validate_is_hex_format('answer', payload['answer'])
-
-    username = payload['username'].strip()
-
-    _validate_is_not_empty('username', username)
     _validate_is_not_empty('challenge', payload['challenge'])
     _validate_is_not_empty('answer', payload['answer'])
-
-    _validate_username_format(username)
 
     return dict(
         username=username,
@@ -36,22 +33,21 @@ def new_user_validator(payload):
 
 def auth_user_request_challenge_validator(payload):
     _validate_has_attrs(payload, ['username'])
-    _validate_is_string('username', payload['username'])
-    _validate_is_not_empty('username', payload['username'])
+    username = _validate_username('username', payload['username'])
 
     return dict(
-        username=payload['username']
+        username=username
     )
 
 
 def auth_user_answer_challenge_validator(payload):
     _validate_has_attrs(payload, ['username', 'answer'])
-    _validate_is_string('username', payload['username'])
     _validate_is_string('answer', payload['answer'])
-    _validate_is_not_empty('username', payload['username'])
+
+    username = _validate_username('username', payload['username'])
 
     return dict(
-        username=payload['username'],
+        username=username,
         answer=payload['answer']
     )
 
@@ -89,7 +85,7 @@ def _validate_is_string(field_name, wannabetext):
 
 def _validate_username_format(username):
     if not re.match('^[a-zA-Z0-9][a-zA-Z0-9_-]*$', username):
-        raise UsernameError()
+        raise UsernameFormatError()
 
 
 def _validate_is_not_empty(field_name, text):
@@ -101,9 +97,23 @@ def _validate_is_exact_length(field_name, text, length):
     if not len(text) == length:
         raise FieldLengthError(field_name, length)
 
+def _validate_is_at_most_length(field_name, text, length):
+    if len(text) > length:
+        raise FieldMaxLengthError(field_name, length)
 
 def _validate_is_hex_format(field_name, text):
     try:
         int(text, 16)
     except ValueError:
         raise FieldHexError(field_name)
+
+def _validate_username(field_name, unclean_username):
+    _validate_is_string(field_name, unclean_username)
+
+    username = unclean_username.strip()
+
+    _validate_is_not_empty(field_name, username)
+    _validate_is_at_most_length(field_name, username, 50)
+    _validate_username_format(username)
+
+    return username
