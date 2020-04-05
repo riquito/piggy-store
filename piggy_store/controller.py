@@ -19,6 +19,7 @@ from piggy_store.storage.cache import get_cache_storage, get_token_storage
 from piggy_store.exceptions import (
     UserExistsError,
     ChallengeMismatchError,
+    MaxRequestSizeExceededError,
     TokenExpiredError
 )
 
@@ -37,6 +38,17 @@ def authentication(func):
             raise TokenExpiredError()
         return func(tokenBag, *args, **kwargs)
     return pass_valid_token
+
+def limit_content_length(max_length):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            cl = request.content_length
+            if cl is not None and cl > max_length:
+                raise MaxRequestSizeExceededError(max_length, cl)
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
 
 @bp.route('/', methods=['GET'])
 @as_json
@@ -70,6 +82,7 @@ def list_user_files(tokenBag):
 
 
 @bp.route('/users/', methods=['POST'])
+@limit_content_length(512)
 @as_json
 def new_user():
     unsafe_payload = request.get_json() or {}
@@ -125,6 +138,7 @@ def auth_user_request_challenge():
 
 
 @bp.route('/auth/answer-challenge', methods=['POST'])
+@limit_content_length(512)
 @as_json
 def auth_user_answer_challenge():
     unsafe_payload = request.get_json() or {}

@@ -128,3 +128,10 @@ class BucketAccessDeniedError(PiggyStoreError):
 class BucketAccessTimeoutError(PiggyStoreError):
     CODE = 1018
     MESSAGE = 'Request timed out when trying to access the bucket'
+
+class MaxRequestSizeExceededError(PiggyStoreError):
+    CODE = 1019
+    MESSAGE = 'The request exceeded the maximum size of {} bytes (was {})'
+
+    def __init__(self, max_length, length):
+        super().__init__(self.CODE, self.MESSAGE.format(max_length, length))
