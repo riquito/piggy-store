@@ -98,8 +98,8 @@ class Storage(EasyStorageABC):
     def remove_file_by_filename(self, user, filename):
         return self.es.remove_file_by_filename(user, filename)
 
-    def get_presigned_upload_url(self, user, filename):
-        return self.es.get_presigned_upload_url(user, filename)
+    def get_presigned_post_policy(self, user, filename):
+        return self.es.get_presigned_post_policy(user, filename)
 
     def get_presigned_retrieve_url(self, user, filename):
         return self.es.get_presigned_retrieve_url(user, filename)

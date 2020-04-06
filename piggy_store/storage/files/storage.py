@@ -14,7 +14,7 @@ class Storage(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_presigned_upload_url(self, file_instance):
+    def get_presigned_post_policy(self, file_instance):
         raise NotImplementedError()
 
     @abstractmethod

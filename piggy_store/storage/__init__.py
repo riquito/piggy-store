@@ -32,7 +32,7 @@ class EasyStorageABC(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_presigned_upload_url(self, user, filename):
+    def get_presigned_post_policy(self, user, filename):
         raise NotImplementedError()
 
 
@@ -85,10 +85,10 @@ class EasyStorage(EasyStorageABC):
         f = file_storage.build_file(filename)
         file_storage.remove_file(f)
 
-    def get_presigned_upload_url(self, user, filename):
+    def get_presigned_post_policy(self, user, filename):
         file_storage = access_user_storage(user.username)
         f = file_storage.build_file(filename)
-        return file_storage.get_presigned_upload_url(f)
+        return file_storage.get_presigned_post_policy(f)
 
     def get_presigned_retrieve_url(self, user, filename):
         file_storage = access_user_storage(user.username)

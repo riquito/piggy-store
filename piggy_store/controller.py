@@ -181,14 +181,15 @@ def request_upload_url(tokenBag):
     unsafe_payload = request.get_json() or {}
     payload = request_upload_url_validator(unsafe_payload)
     user = db.find_user_by_username(tokenBag['username'])
-    upload_url = db.get_presigned_upload_url(user, payload['filename'])
+    upload_url, form_data = db.get_presigned_post_policy(user, payload['filename'])
     retrieve_url = db.get_presigned_retrieve_url(user, payload['filename'])
 
     return {
         'links': {
             'upload_url': {
                 'rel': 'file',
-                'href': upload_url
+                'href': upload_url,
+                'form_data': form_data
             },
             'retrieve_url': {
                 'rel': 'file',

@@ -1,7 +1,7 @@
 from io import BytesIO
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from minio import Minio
+from minio import Minio, PostPolicy
 from minio.error import NoSuchKey, AccessDenied
 from urllib3.exceptions import MaxRetryError
 
@@ -85,13 +85,22 @@ class Storage(BaseStorage):
                 url=self.get_presigned_retrieve_url(obj)
             )
 
-    def get_presigned_upload_url(self, f):
-        # presigned PUT object URL for an object name, expires in 3 days.
-        return self.client.presigned_put_object(
-            self.bucket,
-            f.object_name,
-            expires=timedelta(days=3)
-        )
+    def get_presigned_post_policy(self, f):
+        # presigned POST formdata for an object name, expires in 5 minutes.
+        # Use POST policy instead of the simpler presigned_put_object because
+        # it allows to set an upper limit on the uploaded file size.
+
+        post_policy = PostPolicy()
+        post_policy.set_bucket_name(self.bucket)
+        post_policy.set_key(f.object_name)
+        # content length accepted range, in bytes
+        post_policy.set_content_length_range(10, 1024 * 1024)
+
+        expires_date = datetime.utcnow() + timedelta(minutes=5)
+        post_policy.set_expires(expires_date)
+
+        url_str, signed_form_data = self.client.presigned_post_policy(post_policy)
+        return url_str, signed_form_data
 
     def get_presigned_retrieve_url(self, f):
         # presigned GET object URL for an object name.
