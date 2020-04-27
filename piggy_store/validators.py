@@ -84,7 +84,7 @@ def _validate_is_string(field_name, wannabetext):
 
 
 def _validate_username_format(username):
-    if not re.match('^[a-zA-Z0-9][a-zA-Z0-9_-]*$', username):
+    if not re.match('^[a-z0-9][a-z0-9_-]*$', username):
         raise UsernameFormatError()
 
 
@@ -111,6 +111,7 @@ def _validate_username(field_name, unclean_username):
     _validate_is_string(field_name, unclean_username)
 
     username = unclean_username.strip()
+    username = username.lower()
 
     _validate_is_not_empty(field_name, username)
     _validate_is_at_most_length(field_name, username, 50)
