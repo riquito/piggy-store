@@ -51,5 +51,5 @@ ENV VIRTUAL_ENV="/app/.env"
 USER piggy-user
 WORKDIR /app
 
-ENTRYPOINT export APP_REDIS_HOST="$FLY_REDIS_CACHE_URL" && confd -confdir /app/configs -onetime -backend env && exec /usr/bin/uwsgi -i /tmp/uwsgi.ini
+ENTRYPOINT { test "$FLY_REDIS_CACHE_URL" && export APP_REDIS_HOST="${FLY_REDIS_CACHE_URL}" || true; } && confd -confdir /app/configs -onetime -backend env && exec /usr/bin/uwsgi -i /tmp/uwsgi.ini
 EXPOSE 5000
