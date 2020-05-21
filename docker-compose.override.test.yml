@@ -1,9 +1,11 @@
 version: '2'
 services:
     user_db:
+        network_mode: host
         volumes:
             - ./var/tests/redis:/data
     s3_like:
+        network_mode: host
         volumes:
             - ./var/tests/minio/config:/root/.minio
             - ./var/tests/minio/volumes:/export
@@ -11,6 +13,7 @@ services:
             MINIO_ACCESS_KEY: test_s3_access_key
             MINIO_SECRET_KEY: test_s3_secret_key
     web:
+        network_mode: host
         image: riquito/piggy-store
         entrypoint: /app/.env/bin/tox -e py3-coveralls
         environment:
