@@ -3,7 +3,7 @@ Piggy-Store
 
 Store files easily
 
-[![Build Status](https://api.travis-ci.org/riquito/piggy-store.svg?branch=master)](https://travis-ci.org/riquito/piggy-store)
+[![Build Status](https://api.travis-ci.com/riquito/piggy-store.svg?branch=master)](https://travis-ci.com/riquito/piggy-store)
 [![Coverage Status](https://coveralls.io/repos/github/riquito/piggy-store/badge.svg?branch=master)](https://coveralls.io/github/riquito/piggy-store?branch=master)
 
 API Documentation
