@@ -79,18 +79,9 @@ Try it with docker
 ------------------
 
 You can try it locally using our docker image.
-You'll need [packer](https://www.packer.io/), [docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/)
-
-If it's the first time that you build the image, build the base image
 
 ```
-packer build -only piggy-store-base-image build/packer-templates/docker-piggy-store.json
-```
-
-Then you can build the proper piggy-store image
-
-```
-packer build -only docker-piggy-store build/packer-templates/docker-piggy-store.json
+docker build -t riquito/piggy-store:latest .
 ```
 
 Run the project
