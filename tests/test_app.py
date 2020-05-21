@@ -1,3 +1,9 @@
+from piggy_store.config import config, load as load_config
+from piggy_store.app import create_app
+import pytest
+import redis
+from minio.error import MinioError, BucketAlreadyOwnedByYou
+from minio import Minio
 import os
 
 import unittest
@@ -8,14 +14,6 @@ import urllib
 from datetime import datetime
 from hashlib import md5
 
-from minio import Minio
-from minio.error import MinioError, BucketAlreadyOwnedByYou
-import redis
-import pytest
-
-from piggy_store.app import create_app
-
-from piggy_store.config import config, load as load_config
 
 if not config:
     config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'config.tests.yml')
@@ -26,8 +24,9 @@ FOO_USERNAME = 'foo'
 FOOBAR_USERNAME = 'foobar'
 
 FOO_ENC_CHALLENGE = 'assume I\'m an encrypted blob'
-FOO_ANSWER = 'a'* 32 # fake 32 bytes long sha256 checksum
+FOO_ANSWER = 'a' * 32  # fake 32 bytes long sha256 checksum
 DEFAULT_FILENAME = 'default-filename'
+
 
 class Navigator:
     def __init__(self, client):
@@ -95,16 +94,16 @@ class Navigator:
             f.read()
 
     def list_files(self, token):
-        return self.cli.get('/files/', headers = {
+        return self.cli.get('/files/', headers={
             'Authorization': 'Bearer ' + token
         }, content_type='application/json')
 
     def delete_file(self, token, filename):
         return self.cli.delete('/files/', data=json.dumps({
             'filename': filename
-        }), headers = {
+        }), headers={
             'Authorization': 'Bearer ' + token
-        },content_type='application/json')
+        }, content_type='application/json')
 
     def delete_user(self, token):
         return self.cli.delete('/users/', headers={
@@ -112,21 +111,21 @@ class Navigator:
         }, content_type='application/json')
 
 
-
 miniocli = Minio(
     config['storage']['files']['params']['host'],
-    access_key = config['storage']['files']['params']['access_key'],
-    secret_key = config['storage']['files']['params']['secret_key'],
-    secure = config['storage']['files']['params']['secure'],
-    region = config['storage']['files']['params']['region']
+    access_key=config['storage']['files']['params']['access_key'],
+    secret_key=config['storage']['files']['params']['secret_key'],
+    secure=config['storage']['files']['params']['secure'],
+    region=config['storage']['files']['params']['region']
 )
 
 rediscli = redis.StrictRedis(
-    host = config['storage']['cache']['params']['host'],
-    port = config['storage']['cache']['params']['port'],
-    db = config['storage']['cache']['params']['database'],
-    decode_responses = True
+    host=config['storage']['cache']['params']['host'],
+    port=config['storage']['cache']['params']['port'],
+    db=config['storage']['cache']['params']['database'],
+    decode_responses=True
 )
+
 
 def bucket_init(bucket_name):
     try:
@@ -177,20 +176,23 @@ def bucket_init(bucket_name):
 
     miniocli.set_bucket_policy(bucket_name, read_write_policy)
 
+
 def bucket_teardown():
     rediscli.flushdb()
 
     for bucket in miniocli.list_buckets():
         bucket_name = bucket.name
-        errors = miniocli.remove_objects(bucket_name, (x.object_name for x in miniocli.list_objects_v2(bucket_name, '', recursive=True)))
+        errors = miniocli.remove_objects(
+            bucket_name, (x.object_name for x in miniocli.list_objects_v2(bucket_name, '', recursive=True)))
         for i in errors:
-            pass # you need to force evaluation
+            pass  # you need to force evaluation
         miniocli.remove_bucket(bucket_name)
 
 
 @pytest.fixture(scope='module')
 def cli():
     return Navigator(create_app(config).test_client())
+
 
 class TestPiggyStoreApp:
     DUMMY_TOKEN = 'a.dummy.token'
@@ -200,7 +202,6 @@ class TestPiggyStoreApp:
         bucket_name = config['storage']['files']['params']['bucket']
         bucket_init(bucket_name)
         request.addfinalizer(bucket_teardown)
-
 
     def _test_cors(self, r):
         assert r.headers.get('Content-Type') == 'application/json'
@@ -221,14 +222,14 @@ class TestPiggyStoreApp:
         assert r.status_code == 200
         self._test_cors(r)
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 200,
-            "links":  {
+            "links": {
                 "create_user": {
                     "href": "http://localhost/users/",
                     "rel": "user"
                 },
-                "request_auth_challenge":  {
+                "request_auth_challenge": {
                     "href": "http://localhost/auth/request-challenge",
                     "rel": "auth"
                 }
@@ -249,23 +250,23 @@ class TestPiggyStoreApp:
 
         json_response = self._decode_json_response(r.data)
         assert json_response == \
-        {
-            "content": {
-                "challenge": FOO_ENC_CHALLENGE,
-                "token": self.DUMMY_TOKEN,
-            },
-            "links": {
-                "files_list": {
-                    "href": "http://localhost/files/",
-                    "rel": "file"
-                },
-                "request_upload_url": {
-                    "href": "http://localhost/files/request-upload-url",
-                    "rel": "file"
+            {
+                "content": {
+                    "challenge": FOO_ENC_CHALLENGE,
+                    "token": self.DUMMY_TOKEN,
+                    },
+                "links": {
+                    "files_list": {
+                        "href": "http://localhost/files/",
+                        "rel": "file"
+                        },
+                    "request_upload_url": {
+                        "href": "http://localhost/files/request-upload-url",
+                        "rel": "file"
+                        }
+                    },
+                "status": 200
                 }
-            },
-            "status": 200
-        }
 
     def test_try_to_create_new_user_but_the_user_already_exists(self, cli):
         r = cli.create_user_foo()
@@ -273,7 +274,7 @@ class TestPiggyStoreApp:
         r = cli.create_user_foo()
         assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 409,
             "error": {
                 "code": 1000,
@@ -292,7 +293,7 @@ class TestPiggyStoreApp:
         r = cli.create_user_foo()
         assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 409,
             "error": {
                 "code": 1000,
@@ -304,7 +305,7 @@ class TestPiggyStoreApp:
         r = cli.get_auth_challenge()
         assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 409,
             "error": {
                 "code": 1002,
@@ -316,7 +317,7 @@ class TestPiggyStoreApp:
         r = cli.get_auth_challenge('user1')
         assert r.status_code == 401
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 401,
             "error": {
                 "code": 1005,
@@ -345,22 +346,22 @@ class TestPiggyStoreApp:
             pass
 
         assert decoded_data == \
-        {
-            'status': 200,
-            'content': {
-                'challenge': FOO_ENC_CHALLENGE
-            },
-            'links': {
-                'answer_auth_challenge': {
-                    'rel': 'auth',
-                    'href': 'http://localhost/auth/answer-challenge'
-                },
-                'create_user': {
-                    'rel': 'user',
-                    'href': 'http://localhost/users/'
+            {
+                'status': 200,
+                'content': {
+                    'challenge': FOO_ENC_CHALLENGE
+                    },
+                'links': {
+                    'answer_auth_challenge': {
+                        'rel': 'auth',
+                        'href': 'http://localhost/auth/answer-challenge'
+                        },
+                    'create_user': {
+                        'rel': 'user',
+                        'href': 'http://localhost/users/'
+                        }
+                    }
                 }
-            }
-        }
 
     def test_auth_user_answer_challenge_succeed(self, cli):
         r = cli.create_user_foo()
@@ -370,22 +371,22 @@ class TestPiggyStoreApp:
 
         decoded_data = self._decode_json_response(r.data)
         assert decoded_data == \
-        {
-            'status': 200,
-            'content': {
-                'token': self.DUMMY_TOKEN
-            },
-            'links': {
-                'request_upload_url': {
-                    'rel': 'file',
-                    'href': 'http://localhost/files/request-upload-url'
-                },
-                'files_list': {
-                    'rel': 'file',
-                    'href': 'http://localhost/files/'
+            {
+                'status': 200,
+                'content': {
+                    'token': self.DUMMY_TOKEN
+                    },
+                'links': {
+                    'request_upload_url': {
+                        'rel': 'file',
+                        'href': 'http://localhost/files/request-upload-url'
+                        },
+                    'files_list': {
+                        'rel': 'file',
+                        'href': 'http://localhost/files/'
+                        }
+                    }
                 }
-            }
-        }
 
     def test_auth_user_answer_challenge_wrong_answer(self, cli):
         r = cli.create_user_foo()
@@ -395,13 +396,13 @@ class TestPiggyStoreApp:
 
         decoded_data = json.loads(r.data.decode('utf-8'))
         assert decoded_data == \
-        {
-            'status': 403,
-            'error': {
-                'code': 1006,
-                'message': 'The challenge does not match'
-            }
-        }
+            {
+                'status': 403,
+                'error': {
+                    'code': 1006,
+                    'message': 'The challenge does not match'
+                    }
+                }
 
     def test_auth_user_answer_challenge_succeed_if_the_cache_is_cleared_midway(self, cli):
         r = cli.create_user_foo()
@@ -473,13 +474,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1004,
-                'message': 'Expected filename to not be empty'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1004,
+                    'message': 'Expected filename to not be empty'
+                    }
+                }
 
     def test_upload_file(self, cli):
         r = cli.create_user_foo()
@@ -578,11 +579,11 @@ class TestPiggyStoreApp:
         with patch('piggy_store.storage.files.s3_storage.Minio', new=Minio) as orig_minio_class:
             with patch.object(Minio, 'list_objects_v2') as mocked_list_objects_v2:
                 mocked_object = Object(
-                    'xxx bucket name unused here', # bucket_name
-                    'users/foo/filexyz', # object_name
-                    None, # last_modified
-                    None, # etag
-                    12 # size
+                    'xxx bucket name unused here',  # bucket_name
+                    'users/foo/filexyz',  # object_name
+                    None,  # last_modified
+                    None,  # etag
+                    12  # size
                 )
 
                 mocked_list_objects_v2.return_value = [mocked_object]
@@ -602,7 +603,6 @@ class TestPiggyStoreApp:
                         decoded_data['content'][idx]['content']['url'] = href_content.split('?', 1)[0]
                 except KeyError:
                     pass
-
 
                 assert decoded_data == {
                     'status': 200,
@@ -709,20 +709,21 @@ class TestPiggyStoreApp:
             decoded_data = json.loads(r.data.decode('utf-8'))
             expired_token = decoded_data['content']['token']
 
-            import time; time.sleep(1)
+            import time
+            time.sleep(1)
             r = cli.list_files(expired_token)
             data = r.data
             assert r.status_code == 409
             decoded_data = json.loads(r.data.decode('utf-8'))
 
             assert decoded_data == \
-            {
-                'status': 409,
-                'error': {
-                    'code': 1007,
-                    'message': 'The token has expired'
-                }
-            }
+                {
+                    'status': 409,
+                    'error': {
+                        'code': 1007,
+                        'message': 'The token has expired'
+                        }
+                    }
         finally:
             singletonAuthTokenStorage.timeout = previousTimeout
 
@@ -739,13 +740,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1008,
-                'message': 'The token is not valid'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1008,
+                    'message': 'The token is not valid'
+                    }
+                }
 
     def test_create_new_user_validation_field_username_is_not_a_string(self, cli):
         username = 42
@@ -754,13 +755,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1003,
-                'message': 'Expected username to be a string'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1003,
+                    'message': 'Expected username to be a string'
+                    }
+                }
 
     def test_create_new_user_validation_field_username_cannot_be_empty(self, cli):
         username = ''
@@ -769,13 +770,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1004,
-                'message': 'Expected username to not be empty'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1004,
+                    'message': 'Expected username to not be empty'
+                    }
+                }
 
     def test_create_new_user_validation_field_username_is_not_valid(self, cli):
         for username in ('_foo', '-foo', '$', 'à'):
@@ -799,13 +800,13 @@ class TestPiggyStoreApp:
             decoded_data = json.loads(r.data.decode('utf-8'))
 
             assert decoded_data == \
-            {
-                'status': 409,
-                'error': {
-                    'code': 1011,
-                    'message': 'Expected answer to be 32 characters long'
-                }
-            }
+                {
+                    'status': 409,
+                    'error': {
+                        'code': 1011,
+                        'message': 'Expected answer to be 32 characters long'
+                        }
+                    }
 
         r = cli.create_new_user(FOO_USERNAME, FOO_ENC_CHALLENGE, 'a' * 32)
         assert r.status_code == 200
@@ -817,13 +818,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1012,
-                'message': 'This field is not in hex format: answer'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1012,
+                    'message': 'This field is not in hex format: answer'
+                    }
+                }
 
     def test_create_new_user_not_whitelisted(self, cli):
         r = cli.create_new_user('nobodywhantsme', FOO_ENC_CHALLENGE, FOO_ANSWER)
@@ -831,13 +832,13 @@ class TestPiggyStoreApp:
 
         decoded_data = json.loads(r.data.decode('utf-8'))
         assert decoded_data == \
-        {
-            'status': 403,
-            'error': {
-                'code': 1014,
-                'message': 'The user is not allowed: nobodywhantsme'
-            }
-        }
+            {
+                'status': 403,
+                'error': {
+                    'code': 1014,
+                    'message': 'The user is not allowed: nobodywhantsme'
+                    }
+                }
 
     def test_delete_user_success(self, cli):
         r = cli.create_user_foo()
@@ -860,7 +861,7 @@ class TestPiggyStoreApp:
         r = cli.delete_user(token_foo)
         assert r.status_code == 200
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 200,
             "links": {
                 "create_user": {
@@ -880,7 +881,7 @@ class TestPiggyStoreApp:
         r = cli.get_auth_challenge(FOO_USERNAME)
         assert r.status_code == 401
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             "status": 401,
             "error": {
                 "code": 1005,
@@ -905,7 +906,7 @@ class TestPiggyStoreApp:
         r = cli.list_files(token_foo)
         assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             'status': 409,
             'error': {
                 'code': 1007,
@@ -942,7 +943,7 @@ class TestPiggyStoreApp:
             assert mock_parse_multi_object_delete_response.called
             assert r.status_code == 500
             assert json.loads(r.data.decode('utf-8')) == \
-            {
+                {
                 "status": 500,
                 "error": {
                     "code": 1013,
@@ -964,7 +965,7 @@ class TestPiggyStoreApp:
         r = cli.delete_user(token_foo)
         assert r.status_code == 409
         assert json.loads(r.data.decode('utf-8')) == \
-        {
+            {
             'status': 409,
             'error': {
                 'code': 1007,
@@ -984,13 +985,13 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
 
         assert decoded_data == \
-        {
-            'status': 409,
-            'error': {
-                'code': 1008,
-                'message': 'The token is not valid'
-            }
-        }
+            {
+                'status': 409,
+                'error': {
+                    'code': 1008,
+                    'message': 'The token is not valid'
+                    }
+                }
 
 
 if __name__ == '__main__':
