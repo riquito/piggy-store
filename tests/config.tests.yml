@@ -14,13 +14,13 @@ storage:
     cache:
         module: piggy_store.storage.cache.redis_storage
         params:
-            host: user_db
+            host: localhost
             port: 6379
             database: 0
     files:
         module: piggy_store.storage.files.s3_storage
         params:
-            host: s3like.com:9000
+            host: localhost:9000
             region: us-east-1
             bucket: bucket-test
             secure: false

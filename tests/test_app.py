@@ -1,5 +1,6 @@
 from piggy_store.config import config, load as load_config
 from piggy_store.app import create_app
+import requests
 import pytest
 import redis
 from minio.error import MinioError, BucketAlreadyOwnedByYou
@@ -75,10 +76,18 @@ class Navigator:
         }
 
         return urllib.request.Request(
-            url = url,
-            headers = headers,
-            method = 'PUT',
-            data = file_content
+            url=url,
+            headers=headers,
+            method='PUT',
+            data=file_content
+        )
+
+    def upload_file_with_form_data(self, url, form_data, file_content):
+        return requests.post(
+            # "http://httpbin.org/post",
+            url,
+            data=form_data,
+            files={"file": ('blob', file_content, 'text/plain')},
         )
 
     def upload_file_to_user(self, token, filename, file_content):
@@ -86,12 +95,10 @@ class Navigator:
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
         upload_url = decoded_data['links']['upload_url']['href']
+        form_data = decoded_data['links']['upload_url']['form_data']
 
-        req = self.get_upload_file_request(upload_url, file_content)
-
-        with urllib.request.urlopen(req) as f:
-            assert f.getcode() == 200
-            f.read()
+        res = self.upload_file_with_form_data(upload_url, form_data, file_content)
+        assert res.status_code == 204
 
     def list_files(self, token):
         return self.cli.get('/files/', headers={
@@ -191,6 +198,8 @@ def bucket_teardown():
 
 @pytest.fixture(scope='module')
 def cli():
+    bucket_name = config['storage']['files']['params']['bucket']
+    bucket_init(bucket_name)
     return Navigator(create_app(config).test_client())
 
 
@@ -441,6 +450,12 @@ class TestPiggyStoreApp:
             # remove random X-Amz-* unpredictable items
             href = decoded_data['links']['upload_url']['href']
             decoded_data['links']['upload_url']['href'] = href.split('?', 1)[0]
+            for k in list(decoded_data['links']['upload_url']['form_data'].keys()):
+                if k.startswith('x-amz-'):
+                    del(decoded_data['links']['upload_url']['form_data'][k])
+            # check that at least the policy contained something
+            assert len(decoded_data['links']['upload_url']['form_data']['policy']) > 0
+            decoded_data['links']['upload_url']['form_data']['policy'] = ''
 
             # remove random X-Amz-* unpredictable items
             href = decoded_data['links']['retrieve_url']['href']
@@ -449,19 +464,24 @@ class TestPiggyStoreApp:
             pass
 
         assert decoded_data == \
-        {
-            'status': 200,
-            'links': {
-                'upload_url': {
-                    'rel': 'file',
-                    'href': 'http://s3like.com:9000/bucket-test/users/foo/default-filename'
-                },
-                'retrieve_url': {
-                    'rel': 'file',
-                    'href': 'http://s3like.com:9000/bucket-test/users/foo/default-filename'
+            {
+                'status': 200,
+                'links': {
+                    'upload_url': {
+                        'rel': 'file',
+                        'form_data': {
+                            'bucket': 'bucket-test',
+                            'key': 'users/foo/default-filename',
+                            'policy': ''
+                            },
+                        'href': 'http://localhost:9000/bucket-test/',
+                        },
+                    'retrieve_url': {
+                        'rel': 'file',
+                        'href': 'http://localhost:9000/bucket-test/users/foo/default-filename'
+                        }
+                    }
                 }
-            }
-        }
 
     def test_request_upload_url_field_filename_is_empty(self, cli):
         r = cli.create_user_foo()
@@ -492,13 +512,13 @@ class TestPiggyStoreApp:
         assert r.status_code == 200
         decoded_data = json.loads(r.data.decode('utf-8'))
         upload_url = decoded_data['links']['upload_url']['href']
+        form_data = decoded_data['links']['upload_url']['form_data']
 
         file_content = b'this is a test'
-        req = cli.get_upload_file_request(upload_url, file_content)
+        res = cli.upload_file_with_form_data(upload_url, form_data, file_content)
 
-        with urllib.request.urlopen(req) as f:
-            assert f.getcode() == 200
-            assert f.info().get('Etag').strip('"') == md5(file_content).hexdigest()
+        res.status_code == 200
+        assert res.headers.get('Etag').strip('"') == md5(file_content).hexdigest()
 
     def test_list_files(self, cli):
         r = cli.create_user_foo()
@@ -506,8 +526,8 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
         token = decoded_data['content']['token']
 
-        cli.upload_file_to_user(token, 'file1', b'content 1')
-        cli.upload_file_to_user(token, 'file2', b'content 2')
+        cli.upload_file_to_user(token, 'file1', b'content 01')
+        cli.upload_file_to_user(token, 'file2', b'content 02')
 
         r = cli.list_files(token)
         assert r.status_code == 200
@@ -531,7 +551,7 @@ class TestPiggyStoreApp:
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file1'
+                            'href': 'http://localhost:9000/bucket-test/users/foo/file1'
                         },
                         'delete': {
                             'rel': 'file',
@@ -539,17 +559,17 @@ class TestPiggyStoreApp:
                         }
                     },
                     'content': {
-                        'checksum': '9297ab3fbd56b42f6566284119238125',
+                        'checksum': '66156afecbb4e487ea487f2cd0251f10',
                         'filename': 'file1',
-                        'size': 9,
-                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file1'
+                        'size': 10,
+                        'url': 'http://localhost:9000/bucket-test/users/foo/file1'
                     }
                 },
                 {
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file2'
+                            'href': 'http://localhost:9000/bucket-test/users/foo/file2'
                         },
                         'delete': {
                             'rel': 'file',
@@ -557,10 +577,10 @@ class TestPiggyStoreApp:
                         }
                     },
                     'content': {
-                        'checksum': '6685cd62b95f2c58818cb20e7292168b',
+                        'checksum': '9c9be3db53720543385e02239e6f5dee',
                         'filename': 'file2',
-                        'size': 9,
-                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file2'
+                        'size': 10,
+                        'url': 'http://localhost:9000/bucket-test/users/foo/file2'
                     }
                 }
             ]
@@ -611,7 +631,7 @@ class TestPiggyStoreApp:
                             'links': {
                                 'read': {
                                     'rel': 'file',
-                                    'href': 'http://s3like.com:9000/bucket-test/users/foo/filexyz'
+                                    'href': 'http://localhost:9000/bucket-test/users/foo/filexyz'
                                 },
                                 'delete': {
                                     'rel': 'file',
@@ -622,7 +642,7 @@ class TestPiggyStoreApp:
                                 'checksum': '9893532233caff98cd083a116b013c0b',
                                 'filename': 'filexyz',
                                 'size': 12,
-                                'url': 'http://s3like.com:9000/bucket-test/users/foo/filexyz'
+                                'url': 'http://localhost:9000/bucket-test/users/foo/filexyz'
                             }
                         }
                     ]
@@ -634,8 +654,8 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
         token = decoded_data['content']['token']
 
-        cli.upload_file_to_user(token, 'file1', b'content 1')
-        cli.upload_file_to_user(token, 'file2', b'content 2')
+        cli.upload_file_to_user(token, 'file1', b'content 01')
+        cli.upload_file_to_user(token, 'file2', b'content 02')
 
         r = cli.delete_file(token, 'file1')
         assert r.status_code == 200
@@ -661,18 +681,18 @@ class TestPiggyStoreApp:
                     'links': {
                         'read': {
                             'rel': 'file',
-                            'href': 'http://s3like.com:9000/bucket-test/users/foo/file2'
+                            'href': 'http://localhost:9000/bucket-test/users/foo/file2'
                         },
                         'delete': {
-                                'rel': 'file',
-                                'href': 'http://localhost/files/'
+                            'rel': 'file',
+                            'href': 'http://localhost/files/'
                         }
                     },
                     'content': {
-                        'checksum': '6685cd62b95f2c58818cb20e7292168b',
+                        'checksum': '9c9be3db53720543385e02239e6f5dee',
                         'filename': 'file2',
-                        'size': 9,
-                        'url': 'http://s3like.com:9000/bucket-test/users/foo/file2'
+                        'size': 10,
+                        'url': 'http://localhost:9000/bucket-test/users/foo/file2'
                     }
                 }
             ]
@@ -785,13 +805,13 @@ class TestPiggyStoreApp:
             decoded_data = json.loads(r.data.decode('utf-8'))
 
             assert decoded_data == \
-            {
-                'status': 409,
-                'error': {
-                    'code': 1001,
-                    'message': 'Username is not valid'
-                }
-            }
+                {
+                    'status': 409,
+                    'error': {
+                        'code': 1001,
+                        'message': 'Username should contain only ascii letters, numbers, _, -, max 50 chars)'
+                        }
+                    }
 
     def test_create_new_user_validation_field_answer_must_be_32_bytes_long(self, cli):
         for answer in ('a', 'a' * 33):
@@ -846,8 +866,8 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
         token_foo = decoded_data['content']['token']
 
-        cli.upload_file_to_user(token_foo, 'file1', b'content 1')
-        cli.upload_file_to_user(token_foo, 'file2', b'content 2')
+        cli.upload_file_to_user(token_foo, 'file1', b'content 01')
+        cli.upload_file_to_user(token_foo, 'file2', b'content 02')
 
         # add a user with the same prefix to check that we don't delete it too
         r = cli.create_new_user(FOOBAR_USERNAME, FOO_ENC_CHALLENGE, FOO_ANSWER)
@@ -855,7 +875,7 @@ class TestPiggyStoreApp:
         decoded_data = json.loads(r.data.decode('utf-8'))
         token_foobar = decoded_data['content']['token']
 
-        cli.upload_file_to_user(token_foobar, 'file1', b'content 1')
+        cli.upload_file_to_user(token_foobar, 'file1', b'content 01')
 
         # remove the user and his content
         r = cli.delete_user(token_foo)
