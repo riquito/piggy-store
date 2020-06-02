@@ -1,0 +1,851 @@
+openapi: 3.0.0
+info:
+  title: PiggyStore
+  description: |
+    PiggyStore is an application server that let you do basic operations towards an S3 compatible API.
+
+    <!-- ReDoc-Inject: <security-definitions> -->
+  contact: {}
+  version: "1.0"
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: api.svanill.com
+paths:
+  /:
+    get:
+      tags:
+        - Discovery
+      summary: Discover starting endpoints
+      operationId: Getstartingendpoints
+      parameters: []
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Getstartingendpointsresponse"
+              example:
+                status: 200
+                links:
+                  create_user:
+                    href: http://example.com/users/
+                    rel: user
+                  request_auth_challenge:
+                    href: http://example.com/auth/answer-challenge
+                    rel: auth
+      deprecated: false
+  /users/:
+    post:
+      tags:
+        - User
+      summary: Create user
+      description: Create a new user, that will be accessible by returning the correct answer to the provided challenge
+      operationId: Createuser
+      security:
+        - BearerToken: []
+      parameters: []
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Createuserrequest"
+            example:
+              username: michael-walsh
+              challenge: <the challenge that the user will have to respond to>
+              answer: <the answer that the user will have to give to pass the challenge>
+        required: true
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Createuserresponse"
+              example:
+                status: 200
+                content:
+                  challenge: <the challenge that the user will have to respond to>
+                  token: <auth token>
+                links:
+                  files_list:
+                    href: http://example.com/files/
+                    rel: file
+                  request_upload_url:
+                    href: http://example.com/files/request-upload-url
+                    rel: file
+      deprecated: false
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      description: "Delete the user represented by the auth token"
+      operationId: Deleteuser
+      security:
+        - BearerToken: []
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deleteuserresponse"
+              example:
+                status: 200
+                links:
+                  create_user:
+                    href: http://example.com/users/
+                    rel: user
+      deprecated: false
+  /auth/request-challenge:
+    get:
+      tags:
+        - Authentication
+      summary: Ask for the challenge
+      description: |
+        Request a challenge so that we can prove we are who we claim to be
+        (by sending the solution to [/auth/answer-challenge](#operation/Answeruserchallenge))
+      operationId: Askforthechallenge
+      parameters:
+        - name: username
+          in: query
+          description: the username we're requesting the challenge for
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            example: michael-walsh
+        - name: Content-Type
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+            enum: [application/json]
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Askforthechallengeresponse"
+      deprecated: false
+  /auth/answer-challenge:
+    post:
+      tags:
+        - Authentication
+      summary: Answer user's challenge
+      description: |
+        Answer the [challenge](#operation/Askforthechallenge), to get back an auth token.
+      operationId: Answeruserchallenge
+      parameters: []
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Answeruserchallengerequest"
+            example:
+              username: michael-walsh
+              answer: <the answer that was provided when creating the user>
+        required: true
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Answeruserchallengeresponse"
+              example:
+                status: 200
+                content:
+                  token: <auth token>
+                links:
+                  request_upload_url:
+                    rel: file
+                    href: http://example.com/files/request-upload-url
+                  files_list:
+                    rel: file
+                    href: http://example.com/files/
+      deprecated: false
+  /files/:
+    get:
+      tags:
+        - Files
+      summary: List the user's files
+      description: ""
+      operationId: Retrievethelistoftheuserfiles
+      security:
+        - BearerToken: []
+      parameters:
+        - name: Content-Type
+          in: header
+          description: ""
+          required: true
+          style: simple
+          schema:
+            type: string
+            enum: [application/json]
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Retrievethelistoftheuserfilesresponse"
+      deprecated: false
+    delete:
+      tags:
+        - Files
+      summary: Remove a file
+      description: ""
+      operationId: Removeafile
+      parameters:
+        - name: filename
+          in: query
+          description: the name of the file to delete
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Removeafileresponse"
+              example:
+                status: 200
+      deprecated: false
+      security:
+        - BearerToken: []
+  /files/request-upload-url:
+    post:
+      tags:
+        - Files
+      summary: Request upload url
+      description: "Ask for a temporary url to upload a file (the url comes from an S3 compatible API server)"
+      operationId: Requestuploadurl
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Requestuploadurlrequest"
+        required: true
+      responses:
+        200:
+          description: ""
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Requestuploadurlresponse"
+      deprecated: false
+      security:
+        - BearerToken: []
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      description: >-
+        `Authorization: Bearer <token>`
+
+            $ curl -H "Authorization: Bearer 2AP9xR3tqpRHzFZxWcFAp2GtkFcXKU" -X GET "https://api.svanill.com/files/"
+  schemas:
+    Getstartingendpointsresponse:
+      title: Getstartingendpointsresponse
+      required:
+        - status
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        links:
+          $ref: "#/components/schemas/Links"
+      example:
+        status: 200
+        links:
+          create_user:
+            href: http://example.com/users/
+            rel: user
+          request_auth_challenge:
+            href: http://example.com/auth/answer-challenge
+            rel: auth
+    Links:
+      title: Links
+      required:
+        - create_user
+        - request_auth_challenge
+      type: object
+      properties:
+        create_user:
+          $ref: "#/components/schemas/CreateUser"
+        request_auth_challenge:
+          $ref: "#/components/schemas/RequestAuthChallenge"
+      example:
+        create_user:
+          href: http://example.com/users/
+          rel: user
+        request_auth_challenge:
+          href: http://example.com/auth/answer-challenge
+          rel: auth
+    CreateUser:
+      title: CreateUser
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+      example:
+        href: http://example.com/users/
+        rel: user
+    RequestAuthChallenge:
+      title: RequestAuthChallenge
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+      example:
+        href: http://example.com/auth/answer-challenge
+        rel: auth
+    Createuserrequest:
+      title: Createuserrequest
+      required:
+        - username
+        - challenge
+        - answer
+      type: object
+      properties:
+        username:
+          type: string
+          description: one or more ascii letters or numbers, underscores and hyphens. Must start with letters or numbers.
+        challenge:
+          type: string
+          description: a public blob of text that will be presented to anyone that wants to log as this user
+        answer:
+          type: string
+          description: a private blob of text that has to be provided during authorization in response to the challenge
+      example:
+        username: michael-walsh
+        challenge: <the challenge that the user will have to respond to>
+        answer: <the answer that the user will have to give to pass the challenge>
+    Createuserresponse:
+      title: Createuserresponse
+      required:
+        - status
+        - content
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/Content"
+        links:
+          $ref: "#/components/schemas/Links1"
+      example:
+        status: 200
+        content:
+          challenge: <the challenge that the user will have to respond to>
+          token: <auth token>
+        links:
+          files_list:
+            href: http://example.com/files/
+            rel: file
+          request_upload_url:
+            href: http://example.com/files/request-upload-url
+            rel: file
+    Content:
+      title: Content
+      required:
+        - challenge
+        - token
+      type: object
+      properties:
+        challenge:
+          type: string
+        token:
+          type: string
+      example:
+        challenge: <the challenge that the user will have to respond to>
+        token: <auth token>
+    Links1:
+      title: Links1
+      required:
+        - files_list
+        - request_upload_url
+      type: object
+      properties:
+        files_list:
+          $ref: "#/components/schemas/FilesList"
+        request_upload_url:
+          $ref: "#/components/schemas/RequestUploadUrl"
+      example:
+        files_list:
+          href: http://example.com/files/
+          rel: file
+        request_upload_url:
+          href: http://example.com/files/request-upload-url
+          rel: file
+    FilesList:
+      title: FilesList
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+      example:
+        href: http://example.com/files/
+        rel: file
+    RequestUploadUrl:
+      title: RequestUploadUrl
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+      example:
+        href: http://example.com/files/request-upload-url
+        rel: file
+    UploadUrl:
+      title: UploadUrl
+      required:
+        - href
+        - rel
+        - form_data
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+        form_data:
+          type: string
+      example:
+        href: http://example.com/files/request-upload-url
+        rel: file
+        form_data: <form data to use to do the upload request>
+    RetrieveUrl:
+      title: RetrieveUrl
+      required:
+        - href
+        - rel
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: string
+      example:
+        href: http://example.com/files/request-upload-url
+        rel: file
+    Deleteuserresponse:
+      title: Deleteuserresponse
+      required:
+        - status
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        links:
+          $ref: "#/components/schemas/Links2"
+      example:
+        status: 200
+        links:
+          create_user:
+            href: http://example.com/users/
+            rel: user
+    Links2:
+      title: Links2
+      required:
+        - create_user
+      type: object
+      properties:
+        create_user:
+          $ref: "#/components/schemas/CreateUser"
+      example:
+        create_user:
+          href: http://example.com/users/
+          rel: user
+    Askforthechallengeresponse:
+      title: Askforthechallengeresponse
+      required:
+        - status
+        - content
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/Content1"
+        links:
+          $ref: "#/components/schemas/Links3"
+      example:
+        status: 200
+        content:
+          challenge: <the challenge that the user will have to respond to>
+        links:
+          answer_auth_challenge:
+            rel: auth
+            href: http://example.com/auth/answer-challenge
+          create_user:
+            rel: user
+            href: http://example.com/users/
+    Content1:
+      title: Content1
+      required:
+        - challenge
+      type: object
+      properties:
+        challenge:
+          type: string
+      example:
+        challenge: <the challenge that the user will have to respond to>
+    Links3:
+      title: Links3
+      required:
+        - answer_auth_challenge
+        - create_user
+      type: object
+      properties:
+        answer_auth_challenge:
+          $ref: "#/components/schemas/AnswerAuthChallenge"
+        create_user:
+          $ref: "#/components/schemas/CreateUser"
+      example:
+        answer_auth_challenge:
+          rel: auth
+          href: http://example.com/auth/answer-challenge
+        create_user:
+          rel: user
+          href: http://example.com/users/
+    AnswerAuthChallenge:
+      title: AnswerAuthChallenge
+      required:
+        - rel
+        - href
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+      example:
+        rel: auth
+        href: http://example.com/auth/answer-challenge
+    Answeruserchallengerequest:
+      title: Answeruser'schallengerequest
+      required:
+        - username
+        - answer
+      type: object
+      properties:
+        username:
+          type: string
+          description: the username of the user you claim to be
+        answer:
+          type: string
+          description: the answer to the challenge
+      example:
+        username: michael-walsh
+        answer: <the answer that was provided when creating the user>
+    Answeruserchallengeresponse:
+      title: Answeruser'schallengeresponse
+      required:
+        - status
+        - content
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        content:
+          $ref: "#/components/schemas/Content2"
+        links:
+          $ref: "#/components/schemas/Links1"
+      example:
+        status: 200
+        content:
+          token: <auth token>
+        links:
+          request_upload_url:
+            rel: file
+            href: http://example.com/files/request-upload-url
+          files_list:
+            rel: file
+            href: http://example.com/files/
+    Requestuploadurlresponse:
+      title: Request upload-url response
+      required:
+        - status
+        - links
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        links:
+          $ref: "#/components/schemas/Links4"
+      example:
+        status: 200
+        links:
+          upload_url:
+            rel: file
+            href: http://<bucket.s3like>/path/to/file-with-extra-query-params
+            form_data: <form data to use to do the upload request>
+          retrieve_url:
+            rel: file
+            href: http://<bucket.s3like>/path/to/file
+    Links4:
+      title: Links4
+      required:
+        - upload_url
+        - retrieve_url
+      type: object
+      properties:
+        upload_url:
+          $ref: "#/components/schemas/UploadUrl"
+        retrieve_url:
+          $ref: "#/components/schemas/RetrieveUrl"
+      example:
+        upload_url:
+          rel: file
+          href: http://<bucket.s3like>/path/to/file-with-extra-query-params
+          form_data: <form data to use to do the upload request>
+        retrieve_url:
+          rel: file
+          href: http://<bucket.s3like>/path/to/file
+    Content2:
+      title: Content2
+      required:
+        - token
+      type: object
+      properties:
+        token:
+          type: string
+      example:
+        token: <auth token>
+    Retrievethelistoftheuserfilesresponse:
+      title: Retrievethelistoftheuser'sfilesresponse
+      required:
+        - status
+        - content
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Content3"
+          description: ""
+      example:
+        status: 200
+        content:
+          - links:
+              read:
+                rel: file
+                href: http://<s3-like-server>/bucket-test/users/foo/file1
+              delete:
+                rel: file
+                href: http://example.com/files/
+            content:
+              checksum: 9297ab3fbd56b42f6566284119238125
+              filename: file1
+              size: 9
+              url: http://<s3-like-server>/bucket-test/users/foo/file1
+          - links:
+              read:
+                rel: file
+                href: http://<s3-like-server>/bucket-test/users/foo/file2
+              delete:
+                rel: file
+                href: http://example.com/files/
+            content:
+              checksum: 6685cd62b95f2c58818cb20e7292168b
+              filename: file2
+              size: 9
+              url: http://<s3-like-server>/bucket-test/users/foo/file2
+    Content3:
+      title: Content3
+      required:
+        - links
+        - content
+      type: object
+      properties:
+        links:
+          $ref: "#/components/schemas/Links5"
+        content:
+          $ref: "#/components/schemas/Content4"
+      example:
+        links:
+          read:
+            rel: file
+            href: http://<s3-like-server>/bucket-test/users/foo/file1
+          delete:
+            rel: file
+            href: http://example.com/files/
+        content:
+          checksum: 9297ab3fbd56b42f6566284119238125
+          filename: file1
+          size: 9
+          url: http://<s3-like-server>/bucket-test/users/foo/file1
+    Links5:
+      title: Links5
+      required:
+        - read
+        - delete
+      type: object
+      properties:
+        read:
+          $ref: "#/components/schemas/Read"
+        delete:
+          $ref: "#/components/schemas/Delete"
+      example:
+        read:
+          rel: file
+          href: http://<s3-like-server>/bucket-test/users/foo/file1
+        delete:
+          rel: file
+          href: http://example.com/files/
+    Read:
+      title: Read
+      required:
+        - rel
+        - href
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+      example:
+        rel: file
+        href: http://<s3-like-server>/bucket-test/users/foo/file1
+    Delete:
+      title: Delete
+      required:
+        - rel
+        - href
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+      example:
+        rel: file
+        href: http://example.com/files/
+    Content4:
+      title: Content4
+      required:
+        - checksum
+        - filename
+        - size
+        - url
+      type: object
+      properties:
+        checksum:
+          type: string
+        filename:
+          type: string
+        size:
+          type: integer
+          format: int32
+        url:
+          type: string
+      example:
+        checksum: 9297ab3fbd56b42f6566284119238125
+        filename: file1
+        size: 9
+        url: http://<s3-like-server>/bucket-test/users/foo/file1
+    Removeafilerequest:
+      title: Removeafilerequest
+      required:
+        - filename
+      type: object
+      properties:
+        filename:
+          type: string
+          description: the name of the file to delete
+      example:
+        filename: <the name of the file to delete>
+    Removeafileresponse:
+      title: Removeafileresponse
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: integer
+          format: int32
+      example:
+        status: 200
+    Requestuploadurlrequest:
+      title: Requestuploadurlrequest
+      required:
+        - filename
+      type: object
+      properties:
+        filename:
+          type: string
+          description: the name of the file to upload
+      example:
+        filename: <the name of the file to upload>
+tags:
+  - name: Discovery
+    description: "Don't know where to go? Just ask `/`"
+  - name: Authentication
+    description: |
+      To create a new account, the user must provide some content to use as challenge and an answer to that challenge.
+
+      To authenticate, the user requests the challenge and provides the answer.
+
+      The challenge is supposed to contain the answer, encrypted through a cryptographic algorithm that does not suffer from known-plaintext attack.
+
+      <!-- ReDoc-Inject: <security-definitions> -->
+  - name: User
+    description: "Users' management"
+  - name: Files
+    description: Upload, delete or retrieve files
