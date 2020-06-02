@@ -11,12 +11,6 @@ API Documentation
 
 The api documentation can be [found here](https://riquito.github.io/piggy-store/)
 
-To build locally the documentation you'll have to run
-
-```
-yarn run install
-yarn run doc
-```
 
 Setup
 -----
