@@ -7,7 +7,7 @@ authors = ["Riccardo Attilio Galli <riccardo@sideralis.org>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 autopep8 = "^1.5"
-cryptography = "^2.8"
+cryptography = "^3.2"
 Flask = "^1.1.1"
 Flask-JSON = "^0.3.4"
 PyJWT = "^1.7.1"
